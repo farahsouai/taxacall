@@ -23,8 +23,8 @@ router.post('/register', (req, res) => {
         Utilisateur.createWithHashedPassword({
           nom,
           prenom,
-          mail: email,          // ⚠️ ta colonne s'appelle `mail`
-          mot_passe: motDePasse, // ⚠️ ta colonne s'appelle `mot_passe`
+          email: email,          // ⚠️ ta colonne s'appelle `mail`
+          motDePasse: motDePasse, // ⚠️ ta colonne s'appelle `mot_passe`
           role: role || 'UTILISATEUR'
         }, (err2, result) => {
           if (err2) {

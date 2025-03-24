@@ -68,11 +68,7 @@ const LoginForm = () => {
       onChange={handleChange}
       required
     />
-  </div>
-
-
-
-  
+  </div>  
         <button type="submit">Se connecter</button>
       </form>
       {message && <p>{message}</p>}
