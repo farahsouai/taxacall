@@ -1,0 +1,146 @@
+body { 
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background: #f5f7fa;
+  color: #003366;
+  margin: 0;
+  padding: 0;
+}
+
+.container-auth {
+  max-width: 400px;
+  margin: 60px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  animation: fadeInUp 0.5s ease forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h2 {
+  color: #003366;
+  margin-bottom: 20px;
+}
+
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+form input,
+form select {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #e9eff7;
+  color: #003366;
+}
+
+.input-icon-group {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.input-icon-group i {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #0073A8;
+  font-size: 16px;
+}
+
+.input-icon-group input {
+  flex: 1;
+}
+
+form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #0073A8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 115, 168, 0.2);
+}
+
+form button:hover {
+  background-color: #A58D7F;
+}
+
+form button:active {
+  transform: scale(0.98);
+}
+
+.app-title {
+  text-align: center;
+  font-size: 36px;
+  color: #003366;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #0073A8;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #005f8a;
+}
+
+a {
+  color: #A58D7F;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.message-error {
+  color: red;
+  margin-top: 10px;
+}
+
+.message-success {
+  color: green;
+  margin-top: 10px;
+}
+
+.logo-poulina {
+  width: 120px;
+  margin-bottom: 20px;
+}
