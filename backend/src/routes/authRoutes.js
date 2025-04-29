@@ -8,66 +8,65 @@ const router = express.Router();
 router.post('/register', (req, res) => {
     console.log('📦 Données reçues (register) :', req.body);
 
-    const { nom, prenom, email, motDePasse, role } = req.body;
+    const { nom, prenom, numeroPoste, motDePasse, role } = req.body;
 
-    if (!nom || !prenom || !email || !motDePasse) {
+    if (!nom || !prenom || !numeroPoste || !motDePasse) {
         return res.status(400).json({ error: "Champs requis manquants" });
     }
 
-    Utilisateur.findByEmail(email, (err, users) => {
+    Utilisateur.findBynumeroPoste(numeroPoste, (err, users) => {
         if (err) return res.status(500).json({ error: "Erreur serveur" });
         if (users.length > 0) {
-            return res.status(409).json({ error: "Email déjà utilisé" });
+            return res.status(409).json({ error: "numeroPoste déjà utilisé" });
         }
 
         Utilisateur.createWithHashedPassword({
           nom,
           prenom,
-          email: email,          // ⚠️ ta colonne s'appelle `mail`
-          motDePasse: motDePasse, // ⚠️ ta colonne s'appelle `mot_passe`
+          numeroPoste: numeroPoste,
+          motDePasse: motDePasse,
           role: role || 'UTILISATEUR'
         }, (err2, result) => {
           if (err2) {
-            console.error("❌ Erreur SQL détaillée :", err2); // <- Ajoute cette ligne
+            console.error("❌ Erreur SQL détaillée :", err2);
             console.error("Erreur lors de l'insertion :", err2);
             return res.status(500).json({ error: "Erreur lors de l'insertion" });
           }
           res.status(201).json({ message: "Utilisateur inscrit avec succès" });
         });
-        
     });
 });
 
 // ✅ Connexion (POST /auth/login)
 router.post('/login', (req, res) => {
-    
-        console.log('🟡 Données reçues:', req.body);
-      
-       
-            const { email, motDePasse } = req.body;
-          
-            if (!email || !motDePasse) {
-              return res.status(400).json({ error: 'Champs requis manquants' });
-            }
-          
-            Utilisateur.findByEmail(email, async (err, users) => {
-              if (err) return res.status(500).json({ error: 'Erreur serveur' });
-              if (users.length === 0) return res.status(401).json({ error: 'Email incorrect' });
-          
-              const user = users[0];
-          
-              const isValid = await bcrypt.compare(motDePasse, user.motDePasse);
-              if (!isValid) return res.status(401).json({ error: 'Mot de passe incorrect' });
-          
-              res.json({
-                message: 'Connexion réussie',
-                utilisateur: {
-                  id: user.id,
-                  nom: user.nom,
-                  role: user.role
-                }
-              });
-            });
-          });
-          
+    console.log('🟡 Données reçues:', req.body);
+
+    const { numeroPoste, motDePasse } = req.body;
+
+    if (!numeroPoste || !motDePasse) {
+      return res.status(400).json({ error: 'Champs requis manquants' });
+    }
+
+    Utilisateur.findBynumeroPoste(numeroPoste, async (err, users) => {
+      if (err) return res.status(500).json({ error: 'Erreur serveur' });
+      if (users.length === 0) return res.status(401).json({ error: 'numeroPoste incorrect' });
+
+      const user = users[0];
+
+      const isValid = await bcrypt.compare(motDePasse, user.motDePasse);
+      if (!isValid) return res.status(401).json({ error: 'Mot de passe incorrect' });
+
+      res.json({
+        message: 'Connexion réussie',
+        utilisateur: {
+          id: user.id,
+          nom: user.nom,
+          prenom: user.prenom,
+          numeroPoste: user.numeroPoste,
+          role: user.role
+        }
+      });
+    });
+});
+
 module.exports = router;

@@ -1,0 +1,161 @@
+.box {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 15px;
+    background: #fff;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .box-header {
+    padding: 15px 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: #f2faff;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .box-header:hover {
+    background: #e6f4ff;
+  }
+  
+  .arrow {
+    transition: transform 0.3s ease;
+  }
+  
+  .arrow.open {
+    transform: rotate(90deg);
+  }
+  
+  .box-content {
+    padding: 15px 20px;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .form-section {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .form-section input {
+    padding: 5px;
+    width: 120px;
+  }
+  
+  .prefixe-table {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+    border-collapse: collapse;
+  }
+  
+  .prefixe-table th, .prefixe-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+  }
+  
+  
+  .form-section {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .form-section input {
+    padding: 5px;
+    width: 120px;
+  }
+  
+  .prefixe-table th {
+    background-color: #e8f4fa; /* plus clair */
+    color: #003366;            /* texte bleu foncé */
+    font-weight: bold;
+    padding: 12px;
+    font-size: 15px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #0073A8;
+  }
+  
+  
+  .prefixe-table th, .prefixe-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .prefixe-table th {
+    background-color: #e8f4fa;
+  }
+  
+  .slide-down {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .slide-container {
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    max-height: 1000px;
+    opacity: 1;
+  }
+  
+  .slide-container.hidden {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .prefixe-table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  }
+  
+  .prefixe-table th {
+    background-color: #e8f4fa;
+    color: #003366;
+    text-transform: uppercase;
+    padding: 12px;
+    font-weight: bold;
+  }
+  
+  .prefixe-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  
+  .prefixe-table tbody tr:hover {
+    background-color: #f2faff;
+  }
+  

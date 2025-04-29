@@ -1,0 +1,116 @@
+.facture-container {
+    padding: 24px;
+    background: #f5f7fa;
+    border-radius: 16px;
+    margin: 30px auto;
+    max-width: 95%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .facture-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #003366;
+  }
+  
+  .filters {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .filters input,
+  .filters button {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .filters button {
+    background-color: #0073A8;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .export-buttons {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  .export-button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    margin: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+  }
+  
+  .export-button.excel {
+    background-color: #2e7d32; /* vert Excel */
+  }
+  
+  .export-button.pdf {
+    background-color: #c62828; /* rouge PDF */
+  }
+  
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  th,
+  td {
+    padding: 12px 14px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+  }
+  
+  th {
+    background-color: #003366;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+  }
+  
+  tr:hover {
+    background-color: #f0f4f8;
+    transition: 0.3s ease;
+  }
+  
+  .format-label {
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 8px;
+    display: inline-block;
+    text-transform: uppercase;
+  }
+  
+  .format-label.pdf {
+    background-color: #e53935;
+    color: white;
+  }
+  
+  .format-label.csv {
+    background-color: #43a047;
+    color: white;
+  }
+  
+  .format-label.excel {
+    background-color: #1e88e5;
+    color: white;
+  }
+  

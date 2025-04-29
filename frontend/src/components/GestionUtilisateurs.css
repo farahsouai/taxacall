@@ -1,0 +1,140 @@
+.gestion-container {
+  padding: 30px;
+  max-width: 1100px;
+  margin: auto;
+  background-color: #fdfdfd;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.gestion-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #003366;
+}
+
+.ajouter-btn {
+  display: block;
+  margin: 0 auto 25px auto;
+  padding: 10px 20px;
+  background-color: #0073a8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ajouter-btn:hover {
+  background-color: #005d8b;
+}
+
+.utilisateurs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+.utilisateurs-table th,
+.utilisateurs-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.utilisateurs-table th {
+  background-color: #f0f4f8;
+  font-weight: bold;
+  color: #333;
+}
+
+.utilisateurs-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.modifier-btn,
+.supprimer-btn {
+  padding: 6px 12px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.modifier-btn {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.modifier-btn:hover {
+  background-color: #e0a800;
+}
+
+.supprimer-btn {
+  background-color: #e53935;
+  color: white;
+}
+
+.supprimer-btn:hover {
+  background-color: #c62828;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .utilisateurs-table th,
+  .utilisateurs-table td {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .ajouter-btn {
+    width: 100%;
+  }
+
+  .modifier-btn,
+  .supprimer-btn {
+    margin-bottom: 6px;
+    display: block;
+    width: 100%;
+  }
+}
+.fermer-button {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  z-index: 1000;
+}
+
+.fermer-button:hover {
+  background-color: #d32f2f;
+}
+.readonly-input {
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 5px;
+  width: 100%;
+  cursor: not-allowed;
+}
+input[list] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}

@@ -1,0 +1,15 @@
+.nationaux-container {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .nationaux-container h2 {
+    color: #0073A8;
+    margin-bottom: 15px;
+    font-size: 22px;
+  }
+  

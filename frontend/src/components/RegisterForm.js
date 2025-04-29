@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import './RegisterForm.css';
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
-    email: '',
+    numeroPoste: '',
     motDePasse: '',
     role: 'ADMIN',
   });
@@ -70,10 +71,10 @@ const RegisterForm = () => {
   <div className="input-icon-group">
     <i className="fas fa-envelope"></i>
     <input
-      type="email"
-      name="email"
-      placeholder="Email"
-      value={form.email}
+      type="numeroPoste"
+      name="numeroPoste"
+      placeholder="numeroPoste"
+      value={form.numeroPoste}
       onChange={handleChange}
       required
     />

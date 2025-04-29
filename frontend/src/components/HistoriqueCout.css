@@ -1,0 +1,47 @@
+.historique-container {
+    text-align: center;
+    background-color: #f6f7f9;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 30px;
+  }
+  
+  .filters {
+    margin-bottom: 15px;
+  }
+  
+  .filters input {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .filters button {
+    padding: 10px 20px;
+    background-color: #0073A8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .historique-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  .historique-table th,
+  .historique-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .historique-table th {
+    background-color: #003366;
+    color: white;
+  }
+  

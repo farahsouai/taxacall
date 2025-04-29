@@ -1,0 +1,41 @@
+.realtime-stats-container {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 900px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  
+  .realtime-stats-container h2 {
+    text-align: center;
+    color: #003366;
+    margin-bottom: 16px;
+  }
+  
+  .realtime-stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: sans-serif;
+  }
+  
+  .realtime-stats-table th,
+  .realtime-stats-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .realtime-stats-table th {
+    background: #0073A8;
+    color: #fff;
+  }
+  
+  .realtime-stats-table tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+  
+  .inbound { color: #28a745; font-weight: bold; }
+  .outbound { color: #dc3545; font-weight: bold; }
+  .total   { color: #0073A8; font-weight: bold; }
+  

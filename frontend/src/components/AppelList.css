@@ -1,0 +1,102 @@
+.appel-container {
+    text-align: center;
+    background-color: #f6f7f9;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 30px;
+  }
+  
+  .appel-filters {
+    margin-bottom: 15px;
+  }
+  
+  .appel-filters input {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .appel-filters button {
+    padding: 10px 20px;
+    background-color: #0073A8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .appel-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  .appel-th,
+  .appel-td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .appel-th {
+    background-color: #003366;
+    color: white;
+  }
+  
+  .appel-empty {
+    margin-top: 20px;
+    color: #555;
+  }
+  .appel-filters {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .appel-filters .react-select-container {
+    width: 250px; /* ✅ Ajuste ici la taille */
+    font-size: 14px;
+  }
+  
+  .appel-filters .react-select__control {
+    min-height: 36px; /* ✅ Plus compact */
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+  
+  .appel-filters .react-select__value-container {
+    padding: 2px 8px;
+  }
+  
+  .appel-filters .react-select__input {
+    font-size: 14px;
+  }
+  
+  .appel-filters .react-select__menu {
+    font-size: 14px;
+  }
+  
+  .appel-chart {
+    background-color: #f7f9fb;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 30px auto;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .appel-chart h4 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #003366;
+  }
+  
+  .appel-chart canvas {
+    max-height: 280px !important;
+  }
+  
