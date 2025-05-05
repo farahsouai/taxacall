@@ -7,7 +7,7 @@ const GestionUtilisateurs = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3001/utilisateurs")
+    fetch("http://localhost:3005/utilisateurs")
       .then((res) => res.json())
       .then((data) => setUtilisateurs(data))
       .catch((err) => console.error("❌ Erreur chargement utilisateurs :", err));
@@ -15,7 +15,7 @@ const GestionUtilisateurs = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("❗ Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
-      fetch(`http://localhost:3001/utilisateurs/${id}`, { method: "DELETE" })
+      fetch(`http://localhost:3005/utilisateurs/${id}`, { method: "DELETE" })
         .then(() => {
           setUtilisateurs(utilisateurs.filter((u) => u.id !== id));
         })

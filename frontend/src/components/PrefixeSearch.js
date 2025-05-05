@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import './GatewayPrefixeSearch.css'; // Assure-toi d’importer ton CSS ici
+import './GatewayPrefixeSearch.css';
 
 const PrefixePage = () => {
   const [prefixeList, setPrefixeList] = useState([]);
-  const [selectedTab, setSelectedTab] = useState('recherche');
+  const [selectedTab, setSelectedTab] = useState('gestion');
   const [numero, setNumero] = useState('');
   const [resultat, setResultat] = useState(null);
   const [form, setForm] = useState({ prefixe: '', dest: '', prix: '' });
@@ -25,7 +25,7 @@ const PrefixePage = () => {
   }, [afficherTableau]);
 
   const chargerPrefixes = () => {
-    fetch('http://localhost:3001/api/prefixes')
+    fetch('http://localhost:3005/api/prefixes')
       .then(res => res.json())
       .then(data => setPrefixeList(data))
       .catch(err => console.error('Erreur chargement préfixes', err));
@@ -33,7 +33,7 @@ const PrefixePage = () => {
 
   const rechercher = () => {
     if (!numero) return;
-    fetch(`http://localhost:3001/api/prefixes/prix/${numero}`)
+    fetch(`http://localhost:3005/api/prefixes/prix/${numero}`)
       .then(res => res.json())
       .then(data => setResultat(data))
       .catch(err => console.error('Erreur recherche prix', err));
@@ -41,7 +41,7 @@ const PrefixePage = () => {
 
   const handleSubmit = () => {
     const method = editId ? 'PUT' : 'POST';
-    const url = `http://localhost:3001/api/prefixes${editId ? '/' + editId : ''}`;
+    const url = `http://localhost:3005/api/prefixes${editId ? '/' + editId : ''}`;
 
     fetch(url, {
       method,
@@ -63,7 +63,7 @@ const PrefixePage = () => {
 
   const handleDelete = (id) => {
     if (window.confirm('Supprimer ce préfixe ?')) {
-      fetch(`http://localhost:3001/api/prefixes/${id}`, { method: 'DELETE' })
+      fetch(`http://localhost:3005/api/prefixes/${id}`, { method: 'DELETE' })
         .then(() => chargerPrefixes())
         .catch(err => console.error('Erreur suppression', err));
     }
@@ -77,28 +77,14 @@ const PrefixePage = () => {
 
   return (
     <div style={{ textAlign: 'center', margin: '30px' }}>
-      {/* Navigation */}
       <div style={{ marginBottom: '30px' }}>
-        <button
-          onClick={() => setSelectedTab('recherche')}
-          style={{
-            backgroundColor: selectedTab === 'recherche' ? '#0073A8' : '#ccc',
-            color: 'white',
-            padding: '10px 20px',
-            marginRight: '10px',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
-          🔎 Rechercher Prix
-        </button>
         <button
           onClick={() => setSelectedTab('gestion')}
           style={{
-            backgroundColor: selectedTab === 'gestion' ? '#0073A8' : '#ccc',
+            backgroundColor: '#0073A8',
             color: 'white',
             padding: '10px 20px',
+            marginRight: '10px',
             border: 'none',
             borderRadius: '5px',
             cursor: 'pointer'
@@ -108,36 +94,20 @@ const PrefixePage = () => {
         </button>
       </div>
 
-      {/* Recherche */}
-      {selectedTab === 'recherche' && (
+      {selectedTab === 'gestion' && (
         <div>
-          <h2>🔎 Rechercher Prix par Numéro</h2>
-          <select value={numero} onChange={(e) => setNumero(e.target.value)}>
-            <option value="">-- Sélectionner Préfixe --</option>
-            {prefixeList.map((pfx, i) => (
-              <option key={i} value={pfx.prefixe}>
-                {pfx.prefixe} - {pfx.dest}
-              </option>
-            ))}
-          </select>
-          <button onClick={rechercher} disabled={!numero} style={{ marginLeft: '10px' }}>
-            Rechercher
-          </button>
+          
 
+          
+
+          
           {resultat && (
             <div style={{ marginTop: '10px' }}>
               <p><strong>Prix (DT/min):</strong> {resultat.prix}</p>
             </div>
           )}
-        </div>
-      )}
 
-      {/* Gestion */}
-      {selectedTab === 'gestion' && (
-        <div>
-          <h2>📋 Gestion des Préfixes</h2>
-
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
             <input
               type="text"
               placeholder="Préfixe"
@@ -168,6 +138,7 @@ const PrefixePage = () => {
               padding: '8px 16px',
               border: 'none',
               borderRadius: '5px',
+              marginTop: '20px',
               marginBottom: '10px',
               cursor: 'pointer'
             }}
@@ -177,9 +148,8 @@ const PrefixePage = () => {
 
           {(afficherTableau || animationVisible) && (
             <div className={`slide-container ${afficherTableau ? '' : 'hidden'}`}>
-              <input
-                type="text"
-                placeholder="🔍 Rechercher par pays ou préfixe"
+              {/* Liste déroulante de recherche (filtrage tableau) */}
+              <select
                 value={filtre}
                 onChange={(e) => setFiltre(e.target.value.toLowerCase())}
                 style={{
@@ -189,7 +159,15 @@ const PrefixePage = () => {
                   borderRadius: '5px',
                   border: '1px solid #ccc'
                 }}
-              />
+              >
+                <option value="">-- Filtrer par Préfixe/Destination --</option>
+                {prefixeList.map((pfx, i) => (
+                  <option key={i} value={pfx.prefixe}>
+                    {pfx.prefixe} - {pfx.dest}
+                  </option>
+                ))}
+              </select>
+
               <table className="prefixe-table">
                 <thead>
                   <tr>

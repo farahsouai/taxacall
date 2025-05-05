@@ -7,20 +7,28 @@ import AppelsInterFiliales from "./AppelsInterFiliales";
 import AppelsNationauxInternationaux from "./AppelsNationauxInternationaux";
 import GestionUtilisateurs from "./GestionUtilisateurs";
 import BudgetInfo from './BudgetInfo';
-import {
-  FiFolder, FiPhone, FiBarChart2, FiGitBranch, FiGlobe,
-  FiUsers, FiXCircle, FiFileText, FiSearch, FiActivity
-} from 'react-icons/fi';
+import AppelJournalier from './AppelJournalier';
+
+
+
+
+import AlerteDepassement from './AlerteDepassement';
+
 import FactureList from './FactureList';
 import GatewaySearch from './GatewaySearch';
 import PrefixeSearch from './PrefixeSearch';
 import UtilisateursParGroupe from "./UtilisateursParGroupe";
-import RealtimeStats from "./RealtimeStats"; // ✅
+
+import {
+  FiFolder, FiPhone, FiBarChart2, FiGitBranch, FiGlobe,
+  FiUsers, FiXCircle, FiFileText, FiSearch, FiActivity
+} from 'react-icons/fi';
 
 const HomePage = () => {
   const [vueActive, setVueActive] = useState(null);
   const [openComm, setOpenComm] = useState(false);
   const [openRoutage, setOpenRoutage] = useState(false);
+  const [openStatJour, setOpenStatJour] = useState(false);
   const navigate = useNavigate();
 
   const role = localStorage.getItem('userRole');
@@ -37,7 +45,7 @@ const HomePage = () => {
   return (
     <div className="home-container">
       <div className="home-header">
-        <span className="home-title">📞 Poulina Groupe Holding</span>
+        <span className="home-title">📾 Poulina Groupe Holding</span>
         <button className="logout-button" onClick={() => {
           localStorage.clear();
           window.location.href = '/auth';
@@ -55,17 +63,35 @@ const HomePage = () => {
 
             {openComm && (
               <div className="comm-dropdown">
-                <button onClick={() => setVueActive("appels")}><FiPhone style={{ marginRight: 6 }} /> Appels</button>
-                <button onClick={() => setVueActive("historique")}><FiBarChart2 style={{ marginRight: 6 }} /> Historique</button>
+                <button onClick={() => setVueActive("appels")}>
+                  <FiPhone style={{ marginRight: 6 }} /> Appels
+                </button>
+
+                {/* ✅ Statistiques par jour visible pour tous */}
+                <button onClick={() => setOpenStatJour(!openStatJour)}>
+                  📁 Statistiques par jour {openStatJour ? '▲' : '▼'}
+                </button>
+
+                {openStatJour && (
+                  <div style={{ paddingLeft: '15px' }}>
+                    <button onClick={() => setVueActive("historique")}>
+                      📊 Historique de coût
+                    </button>
+                    <button onClick={() => setVueActive("depassement")}>
+                      📈 Alertes de dépassement
+                    </button>
+                  </div>
+                )}
+
                 {role === "ADMIN" && (
                   <>
-                    <button onClick={() => setVueActive("inter-filiales")}><FiGitBranch style={{ marginRight: 6 }} /> Appels Inter-Filiales</button>
-                    <button onClick={() => setVueActive("nationaux")}><FiGlobe style={{ marginRight: 6 }} /> Appels Nationaux/Internationaux</button>
-                    <button onClick={() => setVueActive("stats-realtime")}><FiActivity style={{ marginRight: 6 }} /> Appels Temps Réel</button>
-                    <button onClick={() => setVueActive("stats-realtime")}>
-  <FiActivity style={{ marginRight: 6 }} /> Statistiques par poste
-</button>
-
+                    <button onClick={() => setVueActive("inter-filiales")}>
+                      <FiGitBranch style={{ marginRight: 6 }} /> Appels Inter-Filiales
+                    </button>
+                    <button onClick={() => setVueActive("nationaux")}>
+                      <FiGlobe style={{ marginRight: 6 }} /> Appels Nationaux/Internationaux
+                    </button>
+                   
                   </>
                 )}
               </div>
@@ -73,8 +99,12 @@ const HomePage = () => {
 
             {role === "ADMIN" && (
               <>
-                <button onClick={() => setVueActive("utilisateurs")}><FiUsers style={{ marginRight: 6 }} /> Gérer les Utilisateurs</button>
-                <button onClick={() => setVueActive("factures")}><FiFileText style={{ marginRight: 6 }} /> Facturation</button>
+                <button onClick={() => setVueActive("utilisateurs")}>
+                  <FiUsers style={{ marginRight: 6 }} /> Gérer les Utilisateurs
+                </button>
+                <button onClick={() => setVueActive("factures")}>
+                  <FiFileText style={{ marginRight: 6 }} /> Facturation
+                </button>
 
                 <button onClick={() => setOpenRoutage(!openRoutage)}>
                   <FiSearch style={{ marginRight: 6 }} /> Paramètres de Routage {openRoutage ? '▲' : '▼'}
@@ -82,12 +112,18 @@ const HomePage = () => {
 
                 {openRoutage && (
                   <div className="comm-dropdown">
-                    <button onClick={() => setVueActive("gateway")}><FiSearch style={{ marginRight: 6 }} /> Gateways</button>
-                    <button onClick={() => setVueActive("prefixe")}><FiSearch style={{ marginRight: 6 }} /> Préfixes</button>
+                    <button onClick={() => setVueActive("gateway")}>
+                      <FiSearch style={{ marginRight: 6 }} /> Gateways
+                    </button>
+                    <button onClick={() => setVueActive("prefixe")}>
+                      <FiSearch style={{ marginRight: 6 }} /> Préfixes
+                    </button>
                   </div>
                 )}
 
-                <button onClick={() => setVueActive("utilisateurs-groupe")}>👤 Utilisateurs Poulina</button>
+                <button onClick={() => setVueActive("utilisateurs-groupe")}>
+                  👤 Utilisateurs Poulina
+                </button>
               </>
             )}
           </div>
@@ -99,6 +135,14 @@ const HomePage = () => {
           <BudgetInfo numeroPoste={numeroPoste} />
         </div>
       )}
+
+{!vueActive && (
+  <div className="appel-journalier-section">
+    <AppelJournalier />
+  </div>
+)}
+
+
 
       {vueActive && (
         <div className="vue-active">
@@ -115,7 +159,8 @@ const HomePage = () => {
           {vueActive === "gateway" && role === "ADMIN" && <GatewaySearch />}
           {vueActive === "prefixe" && role === "ADMIN" && <PrefixeSearch />}
           {vueActive === "utilisateurs-groupe" && role === "ADMIN" && <UtilisateursParGroupe />}
-          {vueActive === "stats-realtime" && role === "ADMIN" && <RealtimeStats />} {/* ✅ fix here */}
+      
+          {vueActive === "depassement" && <AlerteDepassement />}
         </div>
       )}
     </div>

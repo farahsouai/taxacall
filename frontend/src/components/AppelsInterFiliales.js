@@ -8,7 +8,7 @@ const AppelsInterFiliales = () => {
 
   // Charger la liste unique des device pools au démarrage
   useEffect(() => {
-    fetch('http://localhost:3001/api/filiales') // suppose que cette route renvoie toutes les filiales
+    fetch('http://localhost:3005/api/filiales') // suppose que cette route renvoie toutes les filiales
       .then(res => res.json())
       .then(data => {
         const pools = [...new Set(data.map(f => f.device_pool))];
@@ -21,7 +21,7 @@ const AppelsInterFiliales = () => {
   }, []);
 
   const handleSearch = (pool) => {
-    fetch(`http://localhost:3001/api/filiales/by-device-pool/${pool}`)
+    fetch(`http://localhost:3005/api/filiales/by-device-pool/${pool}`)
       .then(res => {
         if (!res.ok) throw new Error("Filiale non trouvée");
         return res.json();

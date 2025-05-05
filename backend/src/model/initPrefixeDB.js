@@ -9,7 +9,7 @@ const prefixeDB = {
         id INT AUTO_INCREMENT PRIMARY KEY,
         prefixe VARCHAR(10) UNIQUE,
         dest VARCHAR(100),
-        prix DECIMAL(5, 3)
+        prix DECIMAL(5, 3),
       )
     `;
     db.query(sql, (err) => {

@@ -4,8 +4,8 @@ const connection = mysql.createConnection({
     host: 'localhost',  // Adresse du serveur MySQL
     user: 'root',       // Utilisateur MySQL (par défaut : root)
     password: '',       // Mot de passe (laisser vide si XAMPP)
-    port: 3307,
-    database: 'montaxacall'  // Nom de ta base de données
+    port: 3306,
+    database: 'montaxacall_test'  // Nom de ta base de données
     
 });
 

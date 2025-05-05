@@ -24,7 +24,7 @@ const AppelList = () => {
   const [dateDebut, setDateDebut] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/appelliste/numero-postes')
+    fetch('http://localhost:3005/api/appelliste/numero-postes')
       .then(res => res.json())
       .then(data => {
         const options = data.map(p => ({ value: p, label: p }));
@@ -33,10 +33,17 @@ const AppelList = () => {
       .catch(err => console.error('❌ Erreur chargement des numéros de poste :', err));
   }, []);
 
+  const formatDuree = (seconds) => {
+    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  };
+
   const fetchAppels = async (poste) => {
     if (!poste) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/appelliste/by-poste/${poste}`);
+      const res = await fetch(`http://localhost:3005/api/appelliste/by-poste/${poste}`);
       let data = await res.json();
 
       if (dateDebut) {
@@ -46,14 +53,8 @@ const AppelList = () => {
       setAppels(data);
       setNombreAppels(data.length);
 
-      const totalSeconds = data.reduce((acc, appel) => {
-        const [h, m, s] = appel.duree.split(':').map(Number);
-        return acc + h * 3600 + m * 60 + s;
-      }, 0);
-      const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-      const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-      const s = String(totalSeconds % 60).padStart(2, '0');
-      setDureeTotale(`${h}:${m}:${s}`);
+      const totalSeconds = data.reduce((acc, appel) => acc + Number(appel.duree || 0), 0);
+      setDureeTotale(formatDuree(totalSeconds));
 
       const totalCout = data.reduce((acc, appel) => acc + parseFloat(appel.cout || 0), 0);
       setCoutTotal(totalCout.toFixed(3));
@@ -113,7 +114,14 @@ const AppelList = () => {
     `);
     win.document.close();
     win.print();
+    // Attendre que le contenu soit bien chargé
+  win.onload = () => {
+    win.focus(); // s'assurer que la fenêtre est active
+    win.print();
+    win.close(); // fermer la fenêtre après impression
   };
+};
+  
 
   return (
     <div className="appel-container">
@@ -174,7 +182,7 @@ const AppelList = () => {
                   {appels.map((appel, idx) => (
                     <tr key={idx}>
                       <td>{appel.date_appel}</td>
-                      <td>{appel.duree}</td>
+                      <td>{formatDuree(Number(appel.duree || 0))}</td>
                       <td>{appel.operateur}</td>
                       <td>{appel.cout}</td>
                       <td>{appel.nom}</td>

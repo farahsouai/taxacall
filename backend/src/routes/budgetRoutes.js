@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Budget = require('../model/budget');
+const db = require('../db');
+
 
 // 🔄 Créer la table au démarrage si nécessaire
 Budget.createTable();
@@ -21,5 +23,18 @@ router.get('/info/:numeroPoste', (req, res) => {
     res.json(result[0]);
   });
 });
+// 🔄 Liste de tous les numéros de poste présents dans le budget
+router.get('/postes', (req, res) => {
+  const sql = `SELECT DISTINCT numeroPoste FROM budget_mensuel ORDER BY numeroPoste ASC`;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Erreur récupération des postes :", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    const postes = results.map(row => row.numeroPoste);
+    res.json(postes);
+  });
+});
+
 
 module.exports = router;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './HistoriqueCout.css';
 import AlerteDepassement from "./AlerteDepassement";
 
@@ -7,6 +7,15 @@ const HistoriqueCout = () => {
   const [utilisateurId, setUtilisateurId] = useState('');
   const [resultats, setResultats] = useState([]);
   const [showAlerte, setShowAlerte] = useState(false);
+  const [utilisateurs, setUtilisateurs] = useState([]);
+
+  // 🔄 Charger les utilisateurs au montage
+  useEffect(() => {
+    fetch("http://localhost:3005/api/utilisateurs")
+      .then(res => res.json())
+      .then(data => setUtilisateurs(data))
+      .catch(err => console.error("Erreur chargement utilisateurs:", err));
+  }, []);
 
   const fetchCout = async () => {
     try {
@@ -16,8 +25,7 @@ const HistoriqueCout = () => {
       }
 
       const moisInt = parseInt(mois.split("-")[1], 10);
-      const res = await fetch(`http://localhost:3001/api/historique-cout?mois=${moisInt}&utilisateur_id=${utilisateurId}`);
-
+      const res = await fetch(`http://localhost:3005/api/historique-cout?mois=${moisInt}&numeroPoste=${utilisateurId}`);
 
       if (!res.ok) {
         throw new Error(`Erreur HTTP: ${res.status}`);
@@ -40,14 +48,20 @@ const HistoriqueCout = () => {
           onChange={(e) => setMois(e.target.value)}
           placeholder="Mois"
         />
-        <input
-          type="text"
-          value={utilisateurId}
-          onChange={(e) => setUtilisateurId(e.target.value)}
-          placeholder="ID Utilisateur"
-        />
+
+        {/* ✅ Liste déroulante des numéros de poste */}
+        <select value={utilisateurId} onChange={(e) => setUtilisateurId(e.target.value)}>
+          <option value="">-- numéro de poste --</option>
+          {utilisateurs.map((u) => (
+            <option key={u.numeroPoste} value={u.numeroPoste}>
+            {u.numeroPoste}
+          </option>
+          
+          ))}
+        </select>
+
         <button onClick={fetchCout}>Filtrer</button>
-        <button onClick={() => setShowAlerte(true)} className="btn-alerte">Voir Alertes</button>
+       
       </div>
 
       <table className="historique-table">

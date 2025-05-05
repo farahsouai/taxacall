@@ -1,138 +1,239 @@
 import React, { useEffect, useState } from 'react';
-import './FactureListe.css';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import { exportFacturesToExcel } from '../helpers/exportToExcel';
+import autoTable from 'jspdf-autotable';
 
 const FactureList = () => {
-  const [factures, setFactures] = useState([]);
   const [mois, setMois] = useState('');
-  const [nom, setNom] = useState('');
   const [numeroPoste, setNumeroPoste] = useState('');
-  const [sortField, setSortField] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
-
-  const fetchFactures = async () => {
-    try {
-      const moisNum = mois ? parseInt(mois.split("-")[1], 10) : "";
-
-      const res = await fetch(`http://localhost:3001/api/factures/search?mois=${moisNum}&nom=${nom}&numeroPoste=${numeroPoste}`);
-      const data = await res.json();
-      setFactures(data);
-    } catch (error) {
-      console.error("❌ Erreur récupération factures:", error);
-    }
-  };
+  const [factures, setFactures] = useState([]);
+  const [listePostes, setListePostes] = useState([]);
+  const [erreur, setErreur] = useState(null);
 
   useEffect(() => {
-    fetchFactures();
+    fetch('http://localhost:3005/api/factures/postes')
+      .then(res => res.json())
+      .then(data => setListePostes(data))
+      .catch(err => {
+        console.error('Erreur chargement des postes:', err);
+        setListePostes([]);
+      });
   }, []);
 
-  const handleSort = (field) => {
-    const order = (field === sortField && sortOrder === 'asc') ? 'desc' : 'asc';
-    setSortField(field);
-    setSortOrder(order);
-  };
-
-  const sortedFactures = [...factures].sort((a, b) => {
-    if (!sortField) return 0;
-    const aVal = a[sortField];
-    const bVal = b[sortField];
-    if (typeof aVal === 'string') {
-      return sortOrder === 'asc'
-        ? aVal.localeCompare(bVal)
-        : bVal.localeCompare(aVal);
-    } else {
-      return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+  const rechercherFactures = async () => {
+    if (!mois || !numeroPoste) {
+      setErreur("Veuillez sélectionner un mois et un numéro de poste.");
+      return;
     }
-  });
 
-  const exportToCSV = (rows) => {
-    if (!rows || rows.length === 0) return;
-    const headers = Object.keys(rows[0]);
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(row => headers.map(h => `"${row[h]}"`).join(","))
-    ].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "factures.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const response = await fetch(`http://localhost:3005/api/factures/search?mois=${mois}&numeroPoste=${numeroPoste}`);
+      if (!response.ok) throw new Error("Erreur serveur : " + response.statusText);
+
+      const data = await response.json();
+      setFactures(Array.isArray(data) ? data : []);
+      setErreur(null);
+    } catch (err) {
+      console.error("Erreur récupération factures:", err);
+      setErreur("Impossible de récupérer les factures.");
+      setFactures([]);
+    }
   };
 
-  const exportToPDF = (rows) => {
+  const exporterExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(
+      factures.map(f => ({
+        Nom: f.nom || '',
+        Prénom: f.prenom || '',
+        Mois: f.mois,
+        Année: f.annee,
+        Montant: f.montant_total,
+        Date: new Date(f.date_generation).toLocaleDateString('fr-FR')
+      }))
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Factures");
+    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([buffer], { type: "application/octet-stream" }), "factures.xlsx");
+  };
+
+  const exporterPDF = () => {
     const doc = new jsPDF();
-    doc.text("Liste des Factures", 14, 16);
-    const tableColumn = ["Nom", "Prénom",  "Mois", "Année", "Montant", "Format", "Date"];
-    const tableRows = [];
-    rows.forEach(f => {
-      tableRows.push([
-        f.nom,
-        f.prenom,
-        
-        f.mois,
-        f.annee,
-        `${f.montant_total} DT`,
-        f.format.toUpperCase(),
-        new Date(f.date_generation).toLocaleString()
-      ]);
+    doc.setFontSize(16);
+    doc.text("Liste des factures", 14, 20);
+
+    autoTable(doc, {
+      startY: 30,
+      head: [[
+        'Nom', 'Prénom', 'Mois', 'Année', 'Montant', 'Date'
+      ]],
+      body: factures.map(f => [
+        f.nom || '-', f.prenom || '-', f.mois, f.annee,
+        f.montant_total,
+        new Date(f.date_generation).toLocaleDateString('fr-FR')
+      ]),
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [0, 51, 102] }
     });
-    doc.autoTable({ head: [tableColumn], body: tableRows, startY: 22 });
+
     doc.save("factures.pdf");
   };
 
   return (
-    <div className="facture-container">
-      <h2>📄 Facturation</h2>
+    <div style={{ padding: '30px', maxWidth: '1100px', margin: 'auto' }}>
+      <h2 style={{ textAlign: 'center', color: '#003366' }}>🧾 Facturation</h2>
 
-      <div className="filters">
-        <input type="month" value={mois} onChange={e => setMois(e.target.value)} placeholder="Mois" />
-        <input type="text" placeholder="Numéro de poste" value={numeroPoste} onChange={(e) => setNumeroPoste(e.target.value)} />
-        
-        <button onClick={fetchFactures}>🔍 Rechercher</button>
+      <div style={{
+        display: 'flex',
+        gap: '15px',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '20px',
+        marginBottom: '20px',
+        flexWrap: 'wrap'
+      }}>
+        <input
+          type="month"
+          onChange={(e) => {
+            const [year, month] = e.target.value.split("-");
+            setMois(parseInt(month));
+          }}
+          style={{
+            padding: '8px',
+            borderRadius: '6px',
+            border: '1px solid #ccc',
+            fontSize: '15px'
+          }}
+        />
+        <select
+          value={numeroPoste}
+          onChange={(e) => setNumeroPoste(e.target.value)}
+          style={{
+            padding: '8px',
+            borderRadius: '6px',
+            fontSize: '15px',
+            border: '1px solid #ccc'
+          }}
+        >
+          <option value="">-- Sélectionner poste --</option>
+          {listePostes.map(poste => (
+            <option key={poste} value={poste}>{poste}</option>
+          ))}
+        </select>
+        <button
+          onClick={rechercherFactures}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#0073A8',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          🔍 Rechercher
+        </button>
       </div>
 
-      <div className="export-buttons">
-        <button className="export-button pdf" onClick={() => exportToPDF(sortedFactures)}>🖨️ Exporter en PDF</button>
-        <button className="export-button excel" onClick={() => exportFacturesToExcel(factures)}>📥 Exporter en Excel</button>
-      </div>
+      {erreur && (
+        <p style={{ color: 'red', textAlign: 'center', fontWeight: 'bold' }}>{erreur}</p>
+      )}
 
-      <table>
-        <thead>
-          <tr>
-            <th onClick={() => handleSort('nom')}>Nom</th>
-            <th onClick={() => handleSort('prenom')}>Prénom</th>
-           
-            <th onClick={() => handleSort('mois')}>Mois</th>
-            <th onClick={() => handleSort('annee')}>Année</th>
-            <th onClick={() => handleSort('montant_total')}>Montant</th>
-            <th onClick={() => handleSort('format')}>Format</th>
-            <th onClick={() => handleSort('date_generation')}>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedFactures.length > 0 ? sortedFactures.map((f, i) => (
-            <tr key={i}>
-              <td>{f.nom}</td>
-              <td>{f.prenom}</td>
-            
-              <td>{f.mois}</td>
-              <td>{f.annee}</td>
-              <td>{f.montant_total} DT</td>
-              <td className={`format-label ${f.format}`}>{f.format.toUpperCase()}</td>
-              <td>{new Date(f.date_generation).toLocaleString()}</td>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          marginTop: '20px',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+        }}>
+          <thead>
+            <tr style={{ backgroundColor: '#A58D7F', color: 'white' }}>
+              <th style={thStyle}>NOM</th>
+              <th style={thStyle}>PRÉNOM</th>
+              <th style={thStyle}>MOIS</th>
+              <th style={thStyle}>ANNÉE</th>
+              <th style={thStyle}>MONTANT</th>
+              <th style={thStyle}>DATE</th>
             </tr>
-          )) : (
-            <tr><td colSpan="8">Aucune facture trouvée</td></tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {factures.length === 0 ? (
+              <tr>
+                <td colSpan="6" style={{ textAlign: 'center', padding: '15px', color: '#555' }}>
+                  Aucune facture trouvée
+                </td>
+              </tr>
+            ) : (
+              factures.map((facture, index) => (
+                <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
+                  <td style={tdStyle}>{facture.nom || '-'}</td>
+                  <td style={tdStyle}>{facture.prenom || '-'}</td>
+                  <td style={tdStyle}>{facture.mois}</td>
+                  <td style={tdStyle}>{facture.annee}</td>
+                  <td style={tdStyle}>{facture.montant_total}</td>
+                  <td style={tdStyle}>{new Date(facture.date_generation).toLocaleDateString('fr-FR')}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {factures.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '15px',
+          marginTop: '25px',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            onClick={exporterExcel}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#A58D7F',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            ⬇️ Export Excel
+          </button>
+          <button
+            onClick={exporterPDF}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#003366',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            🧾 Export PDF
+          </button>
+        </div>
+      )}
     </div>
   );
+};
+
+const thStyle = {
+  padding: '10px',
+  border: '1px solid #ccc',
+  fontSize: '15px'
+};
+
+const tdStyle = {
+  padding: '10px',
+  border: '1px solid #ddd',
+  fontSize: '14px',
+  textAlign: 'center'
 };
 
 export default FactureList;

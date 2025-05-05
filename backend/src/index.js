@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 3001;
+const port = 3005;
 const db = require('./db');
 const utilisateurRoutes = require('./routes/utilisateurRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -9,6 +9,7 @@ const appelRoutes = require('./routes/appelRoutes');
 const filialeModel = require('./model/initFilialeDB');
 const appelModel = require('./model/initAppelDB');
 const budgetRoutes = require('./routes/budgetRoutes');
+const budgetModel = require('./model/budget');
 const appelNationauxDB = require('./model/initAppelNationauxDB');
 const appelInternationauxDB = require('./model/initAppelInternationauxDB');
 const filialeRoutes = require('./routes/filialeRoutes');
@@ -24,22 +25,14 @@ const Alerte = require('./model/alerte');
 const alerteRoutes = require('./routes/alerteRoutes');
 const appellisteRoutes = require('./routes/appellisteRoutes');
 const historiqueCoutModel = require('./model/initHistoriqueCoutDB');
+const journalappelsRoutes = require('./routes/journalappelsRoutes');
 const historiqueCoutRoutes = require('./routes/historiqueCoutRoutes');
-const realtimeRoutes = require('./routes/realtimeRoutes');
 
 
-
-
-
-
-
-// ✅ CORS d'abord
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
-// ✅ Routes
 app.use('/api/budget', budgetRoutes);
-
 app.use('/utilisateurs', utilisateurRoutes);
 app.use('/auth', authRoutes);
 app.use('/api', filialeRoutes);
@@ -52,7 +45,8 @@ app.use('/api/appelliste', appellisteRoutes);
 app.use('/api', historiqueCoutRoutes);
 app.use('/api/filiales', filialeRoutes);
 app.use('/api/appel', appelRoutes);
-app.use('/api/appels', realtimeRoutes);
+app.use('/api', journalappelsRoutes);
+
 
 app.get('/', (req, res) => {
   res.send(`
@@ -75,10 +69,8 @@ app.patch('/api/factures/:id', (req, res) => {
   });
 });
 
-// 🧱 Vérification des routes affichées
 console.log(app._router.stack.filter(r => r.route).map(r => r.route.path));
 
-// ✅ Création des tables
 filialeModel.createTable();
 setTimeout(() => appelModel.createTable(), 2000);
 appelNationauxDB.createTable();
@@ -86,19 +78,36 @@ appelInternationauxDB.createTable();
 factureModel.createTable();
 gatewayModel.createTable();
 prefixeModel.createTable();
-utilisateursPoulinaDB.createTable(); // Crée la table si elle n'existe pas
-utilisateursPoulinaDB.updateNumerosPosteFromCDR(); // Met à jour les numéros de poste
-factureModel.seedFactures();
+utilisateursPoulinaDB.createTable();
+utilisateursPoulinaDB.updateNumerosPosteFromCDR();
 Alerte.createTable();
 historiqueCoutModel.createTable();
+appelModel.createTable();
+budgetModel.createTable(); // 👈 Là tu peux l’utiliser
+setTimeout(() => {
+  budgetModel.updateBudgetsFromCDR(); // 👈 Et ici aussi
+}, 1500);
 
-historiqueCoutModel.insertTestData();
 
-// 👉 Afficher toutes les factures avec nom, prénom, poste utilisateur
+factureModel.createTable();
+setTimeout(() => {
+  factureModel.seedFactures(); // ← CETTE LIGNE DOIT ÊTRE ACTIVE
+}, 2000);
+
+
+setTimeout(() => {
+  historiqueCoutModel.insertFromCDRFiles();
+}, 1000);
 factureModel.getAllWithUser((err, result) => {
-  if (err) console.error(err);
-  else console.table(result);
+  if (err) {
+    console.error("❌ Erreur lors du listing des factures :", err);
+  } else if (Array.isArray(result)) {
+    console.table(result);
+  } else {
+    console.log("ℹ️ Pas de factures à afficher.");
+  }
 });
+
 
 app.listen(port, () => {
   console.log(`🚀 Serveur démarré sur http://localhost:${port}`);

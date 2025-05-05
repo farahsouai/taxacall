@@ -19,13 +19,13 @@ const UtilisateurForm = () => {
   useEffect(() => {
     // Si modification, charger l'utilisateur
     if (id) {
-      fetch(`http://localhost:3001/utilisateurs/${id}`)
+      fetch(`http://localhost:3005/utilisateurs/${id}`)
         .then((res) => res.json())
         .then((data) => setForm({ ...data, motDePasse: "" }));
     }
 
     // Charger les numéros de poste disponibles
-    fetch("http://localhost:3001/utilisateurs/numeros-cdr")
+    fetch("http://localhost:3005/utilisateurs/numeros-cdr")
       .then((res) => res.json())
       .then((data) => setNumerosDisponibles(data))
       .catch((err) => console.error("Erreur chargement numéros CDR :", err));
@@ -34,7 +34,7 @@ const UtilisateurForm = () => {
   // Remplir nom/prenom depuis utilisateurs_poulina
   useEffect(() => {
     if (!id && form.numeroPoste) {
-      fetch(`http://localhost:3001/utilisateurs-poulina/${form.numeroPoste}`)
+      fetch(`http://localhost:3005/utilisateurs-poulina/${form.numeroPoste}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.nom && data.prenom) {
@@ -54,8 +54,8 @@ const UtilisateurForm = () => {
 
     const method = id ? "PUT" : "POST";
     const url = id
-      ? `http://localhost:3001/utilisateurs/${id}`
-      : "http://localhost:3001/utilisateurs";
+      ? `http://localhost:3005/utilisateurs/${id}`
+      : "http://localhost:3005/utilisateurs";
 
     fetch(url, {
       method,

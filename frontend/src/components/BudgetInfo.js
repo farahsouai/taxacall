@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import './BudgetInfo.css';
 
 const BudgetInfo = () => {
@@ -6,16 +6,30 @@ const BudgetInfo = () => {
   const [budget, setBudget] = useState("");
   const [consommation, setConsommation] = useState("");
   const [solde, setSolde] = useState("");
+  const [listePostes, setListePostes] = useState([]);
+  const role = localStorage.getItem('userRole');
+
+  useEffect(() => {
+    const poste = localStorage.getItem('numeroPoste');
+    if (role === "ADMIN") {
+      fetch('http://localhost:3005/api/budget/postes')
+        .then(res => res.json())
+        .then(data => setListePostes(data));
+    } else {
+      setNumeroPoste(poste);
+      setListePostes([poste]);
+    }
+  }, [role]);
 
   const handleFetchData = () => {
     if (!numeroPoste) return;
 
     Promise.all([
-      fetch(`http://localhost:3001/api/budget/info/${numeroPoste}`).then(res => {
+      fetch(`http://localhost:3005/api/budget/info/${numeroPoste}`).then(res => {
         if (!res.ok) throw new Error("Budget non trouvé");
         return res.json();
       }),
-      fetch(`http://localhost:3001/api/appel/consommation/${numeroPoste}`).then(res => {
+      fetch(`http://localhost:3005/api/appel/consommation/${numeroPoste}`).then(res => {
         if (!res.ok) throw new Error("Consommation non trouvée");
         return res.json();
       })
@@ -23,7 +37,6 @@ const BudgetInfo = () => {
     .then(([budgetData, consoData]) => {
       setBudget(parseFloat(budgetData.budget || 0).toFixed(2));
       setConsommation(parseFloat(consoData.consommation || 0).toFixed(2));
-
       const soldeCalculé = parseFloat(budgetData.budget || 0) - parseFloat(consoData.consommation || 0);
       setSolde(soldeCalculé.toFixed(2));
     })
@@ -37,27 +50,33 @@ const BudgetInfo = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: "20px",
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-        justifyContent: "center",
-        marginTop: "30px"
-      }}
-    >
+    <div style={{
+      display: "flex",
+      gap: "20px",
+      alignItems: "flex-end",
+      justifyContent: "center",
+      marginTop: "30px",
+      flexWrap: "wrap"
+    }}>
       <div style={boxStyle}>
         <label style={labelStyle}>🔢 Numéro de poste</label>
-        <input
-          type="text"
+        <select
           value={numeroPoste}
           onChange={(e) => setNumeroPoste(e.target.value)}
           style={inputStyle}
-        />
+          disabled={role !== "ADMIN"}
+        >
+          <option value="">--  --</option>
+          {listePostes.map((poste) => (
+            <option key={poste} value={poste}>{poste}</option>
+          ))}
+        </select>
       </div>
 
-      <button onClick={handleFetchData} style={buttonStyle}>🔍 Charger</button>
+      <div style={boxStyle}>
+        <label style={{ visibility: 'hidden' }}>Bouton</label>
+        <button onClick={handleFetchData} style={buttonStyle}>🔍 Charger</button>
+      </div>
 
       <div style={boxStyle}>
         <label style={labelStyle}>💰 Budget</label>

@@ -2,7 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const xlsx = require('xlsx');
 const db = require('../db');
-const utilisateurModel = require('./utilisateur');
+
+const dossierCDR = path.join(__dirname, '../fichiers-cdr');
+const dossierExport = path.join(__dirname, '../data');
 
 const Facture = {
   createTable: () => {
@@ -21,19 +23,31 @@ const Facture = {
     `;
     db.query(sql, (err) => {
       if (err) throw err;
-      console.log("✅ Nouvelle table 'factures' prête !");
+      console.log("✅ Table 'factures' prête !");
     });
   },
+  searchByMoisEtPoste: (mois, numeroPoste, callback) => {
+    const sql = `
+      SELECT id, numeroPoste, nom, prenom, mois, annee, montant_total, format, date_generation
+      FROM factures
+      WHERE mois = ? AND numeroPoste = ?
+    `;
+    db.query(sql, [mois, numeroPoste], callback);
+  },
+  
 
   insertFacture: (facture, callback) => {
     const { numeroPoste, mois, annee, montant_total, format } = facture;
 
     const getUserQuery = 'SELECT nom, prenom FROM utilisateurs WHERE numeroPoste = ?';
     db.query(getUserQuery, [numeroPoste], (err, result) => {
-      if (err) return callback(err);
-      if (result.length === 0) return callback(new Error("Utilisateur non trouvé"));
+      let nom = '-';
+      let prenom = '-';
 
-      const { nom, prenom } = result[0];
+      if (!err && result.length > 0) {
+        nom = result[0].nom || '-';
+        prenom = result[0].prenom || '-';
+      }
 
       const insertQuery = `
         INSERT INTO factures (numeroPoste, nom, prenom, mois, annee, montant_total, format)
@@ -45,23 +59,19 @@ const Facture = {
   },
 
   seedFactures: () => {
-    const filePaths = [
-      path.join(__dirname, '../fichiers-cdr/cdr_1.xlsx'),
-      path.join(__dirname, '../fichiers-cdr/cdr_2.xlsx'),
-      path.join(__dirname, '../fichiers-cdr/cdr_3.xlsx')
-    ];
+    const fichiersCDR = fs.readdirSync(dossierCDR).filter(f => /\.xlsx$/i.test(f));
+    const fichiersExport = fs.readdirSync(dossierExport).filter(f => /^export.*\.xlsx$/i.test(f));
+    const fichiers = [...fichiersCDR.map(f => path.join(dossierCDR, f)), ...fichiersExport.map(f => path.join(dossierExport, f))];
 
-    filePaths.forEach((filePath) => {
+    fichiers.forEach((filePath) => {
       const workbook = xlsx.readFile(filePath);
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      const rows = xlsx.utils.sheet_to_json(sheet);
+      const rows = xlsx.utils.sheet_to_json(sheet, { defval: '' });
 
       rows.forEach((row) => {
-        console.log("📘 Ligne lue depuis Excel :", row);
-
         const facture = {
-          numeroPoste: String(row.numeroPoste || row.NumeroPoste || row['numero poste']).trim(),
+          numeroPoste: String(row.numeroPoste || row.NumeroPoste || row['numero poste'] || row.Poste || row.poste).trim(),
           mois: parseInt(row.mois || row.Mois),
           annee: parseInt(row.annee || row.Annee),
           montant_total: parseFloat(row.montant_total || row.Montant || row.total || row.Total),
@@ -69,7 +79,7 @@ const Facture = {
         };
 
         if (!facture.numeroPoste || isNaN(facture.mois) || isNaN(facture.annee) || isNaN(facture.montant_total)) {
-          console.warn("⚠️ Ligne ignorée (donnée manquante ou invalide) :", row);
+          console.warn("⚠️ Ligne ignorée (champ manquant ou invalide) :", row);
           return;
         }
 
@@ -77,58 +87,34 @@ const Facture = {
           if (err) {
             console.error("❌ Erreur insertion facture :", err.message);
           } else {
-            console.log(`✅ Facture ajoutée pour ${facture.numeroPoste}`);
+            console.log(`✅ Facture insérée : ${facture.numeroPoste}`);
           }
         });
       });
 
-      console.log(`✅ Fichier "${path.basename(filePath)}" traité avec ${rows.length} lignes.`);
+      console.log(`📁 Fichier "${path.basename(filePath)}" traité avec ${rows.length} lignes.`);
     });
   },
 
   getAllWithUser: (callback) => {
     const sql = `
       SELECT f.id, f.numeroPoste, f.mois, f.annee, f.montant_total, f.format, f.date_generation,
-             u.nom, u.prenom
+             f.nom, f.prenom
       FROM factures f
-      JOIN utilisateurs u ON f.numeroPoste = u.numeroPoste
       ORDER BY f.annee DESC, f.mois DESC
     `;
     db.query(sql, callback);
   },
 
-  searchFactures: (mois, nom, numeroPoste, callback) => {
-    const conditions = [];
-    const values = [];
-
-    if (mois) {
-      conditions.push("f.mois = ?");
-      values.push(mois);
-    }
-    if (nom) {
-      conditions.push("u.nom LIKE ?");
-      values.push(`%${nom}%`);
-    }
-    if (numeroPoste) {
-      conditions.push("f.numeroPoste = ?");
-      values.push(numeroPoste);
-    }
-
-    let sql = `
-      SELECT f.id, f.numeroPoste, f.mois, f.annee, f.montant_total, f.format, f.date_generation,
-             u.nom, u.prenom
-      FROM factures f
-      JOIN utilisateurs u ON f.numeroPoste = u.numeroPoste
+  updateFacture: (id, data, callback) => {
+    const { mois, annee, montant_total, format } = data;
+    const sql = `
+      UPDATE factures
+      SET mois = ?, annee = ?, montant_total = ?, format = ?
+      WHERE id = ?
     `;
-
-    if (conditions.length > 0) {
-      sql += " WHERE " + conditions.join(" AND ");
-    }
-
-    sql += " ORDER BY f.annee DESC, f.mois DESC";
-
-    db.query(sql, values, callback);
-  }
+    db.query(sql, [mois, annee, montant_total, format, id], callback);
+  },
 };
 
 module.exports = Facture;

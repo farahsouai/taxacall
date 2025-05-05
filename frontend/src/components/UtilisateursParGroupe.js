@@ -12,7 +12,7 @@ const UtilisateurPoulinaSearch = () => {
   const [listeUtilisateurs, setListeUtilisateurs] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/utilisateurs-poulina")
+    fetch("http://localhost:3005/api/utilisateurs-poulina")
       .then(res => res.json())
       .then(data => {
         console.log("📦 Utilisateurs chargés :", data);
@@ -24,7 +24,7 @@ const UtilisateurPoulinaSearch = () => {
 
   const rechercher = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/api/utilisateurs-poulina/${numeroPoste}`);
+      const res = await fetch(`http://localhost:3005/api/utilisateurs-poulina/${numeroPoste}`);
       const data = await res.json();
       setUtilisateur(data);
       setError('');

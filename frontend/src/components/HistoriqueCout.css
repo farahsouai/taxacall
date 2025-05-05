@@ -44,4 +44,21 @@
     background-color: #003366;
     color: white;
   }
+  .filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .filters input[type="month"],
+  .filters select {
+    padding: 8px 12px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: white;
+    color: #333;
+    outline: none;
+  }
   
