@@ -1,14 +1,16 @@
 .budget-info-container {
-  margin: 0 auto;
+  margin: 0 0 0 40px; /* Marge à gauche */
   max-width: 1000px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start; /* Alignement à gauche */
+  text-align: left;
   background: #fff;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-left: 60px;
+  
 }
 
 /* Tous les éléments sont alignés sur une seule ligne */
@@ -20,6 +22,7 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 20px;
+ 
 }
 
 .budget-input {

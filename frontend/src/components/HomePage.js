@@ -18,6 +18,9 @@ import FactureList from './FactureList';
 import GatewaySearch from './GatewaySearch';
 import PrefixeSearch from './PrefixeSearch';
 import UtilisateursParGroupe from "./UtilisateursParGroupe";
+import DashboardAppels from './DashboardAppels';
+import DashboardCoutAppels from './DashboardCoutAppels';
+
 
 import {
   FiFolder, FiPhone, FiBarChart2, FiGitBranch, FiGlobe,
@@ -30,6 +33,9 @@ const HomePage = () => {
   const [openRoutage, setOpenRoutage] = useState(false);
   const [openStatJour, setOpenStatJour] = useState(false);
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+
 
   const role = localStorage.getItem('userRole');
   const numeroPoste = localStorage.getItem('numeroPoste');
@@ -54,12 +60,14 @@ const HomePage = () => {
         </button>
       </div>
 
-      {!vueActive && (
+
+      { (
         <div className="nav-bar-fixed">
           <div className="nav-bar">
             <button onClick={() => setOpenComm(!openComm)}>
-              <FiFolder style={{ marginRight: 6 }} /> Gestion des Communications {openComm ? '▲' : '▼'}
+              <FiFolder style={{ marginRight: 5 }} /> Gestion des Communications {openComm ? '▲' : '▼'}
             </button>
+            
 
             {openComm && (
               <div className="comm-dropdown">
@@ -137,11 +145,16 @@ const HomePage = () => {
       )}
 
 {!vueActive && (
-  <div className="appel-journalier-section">
-    <AppelJournalier />
+  <div className="content-row">
+    <div className="main-table">
+      <AppelJournalier />
+    </div>
+    <div className="side-dashboards">
+      <DashboardAppels />
+      <DashboardCoutAppels />
+    </div>
   </div>
 )}
-
 
 
       {vueActive && (

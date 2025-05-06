@@ -13,10 +13,12 @@
 .date-title {
   font-size: 22px;
   margin: 15px 0;
+  margin-left: 0%;
 }
 
 .filter-buttons {
   margin-bottom: 15px;
+  margin-left: 0%;
 }
 
 .filter-buttons button {
@@ -35,13 +37,14 @@
 }
 
 .table-scroll-wrapper {
-  max-height: 400px;
+  max-height: 1000px;
   overflow-y: auto;
-  width: 180%;
-  margin-left: 90%;
-  transform: translateX(-60%);
+  width: 145%;
+  margin-left: 150%;
+  transform: translateX(-120%);
   border: 2px solid #ccc;
-  border-radius: 8px;
+  border-radius: 10px;
+
 }
 
 
@@ -88,9 +91,22 @@ tr:nth-child(even) {
   font-weight: bold;
   margin-bottom: 10px;
   color: #333;
+  margin-left: 0%;
 }
 
 .filter-buttons button.active {
   background-color: #a58d7f;
   color: white;
+}
+.type {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.type.entrant {
+  color: green;
+}
+
+.type.sortant {
+  color: red;
 }

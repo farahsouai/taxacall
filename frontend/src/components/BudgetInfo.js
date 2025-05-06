@@ -52,12 +52,14 @@ const BudgetInfo = () => {
   return (
     <div style={{
       display: "flex",
-      gap: "20px",
+      gap: "20px", /* réduit l'espacement */
       alignItems: "flex-end",
-      justifyContent: "center",
+    /* aligné à gauche */
       marginTop: "30px",
-      flexWrap: "wrap"
+      flexWrap: "wrap",
+      paddingLeft: "20px" /* léger décalage gauche si souhaité */
     }}>
+    
       <div style={boxStyle}>
         <label style={labelStyle}>🔢 Numéro de poste</label>
         <select
@@ -127,11 +129,11 @@ const BudgetInfo = () => {
 };
 
 const inputStyle = {
-  padding: "10px 14px",
+  padding: "8px 12px",
   fontSize: "14px",
   borderRadius: "8px",
   border: "1px solid #ccc",
-  width: "160px",
+  width: "140px",
 };
 
 const buttonStyle = {

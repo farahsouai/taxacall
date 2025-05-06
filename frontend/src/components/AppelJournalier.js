@@ -80,7 +80,10 @@ const AppelJournalier = () => {
                 <td>{a.numero}</td>
                 <td>{a.nom || "---"}</td>
                 <td>{a.duree || "--"}</td>
-                <td className={`type ${a.type}`}>{a.type}</td>
+                <td className={`type ${a.type?.toLowerCase() || ''}`}> {a.type ? a.type.charAt(0).toUpperCase() + a.type.slice(1) : ''}
+</td>
+
+
               </tr>
             ))}
           </tbody>

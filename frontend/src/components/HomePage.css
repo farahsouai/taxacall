@@ -8,6 +8,14 @@
     align-items: center;
     box-sizing: border-box;
   }
+  body, html {
+    overflow-x: hidden;
+  }
+  * {
+    box-sizing: border-box;
+  
+  }
+  
   
   
   .home-header {
@@ -84,6 +92,18 @@
   .nav-bar > button:hover {
     background-color: #005e88;
   }
+  
+  
+  
+.home-container {
+  transition: margin-left 0.3s ease;
+  margin-left: 240px;
+}
+
+.nav-bar-fixed.collapsed + .home-container {
+  margin-left: 60px !important;
+}
+  
   
   .comm-dropdown {
     display: flex;
@@ -222,4 +242,25 @@
 }
 .appel-journalier-section {
   margin-top: 30px;
+}
+.content-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 20px;
+  padding: 0 20px;
+  flex-wrap: wrap;
+}
+
+.main-table {
+  flex: 1;
+  min-width: 500px;
+}
+
+.side-dashboards {
+  width: 350px;
+  display: block;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
 }

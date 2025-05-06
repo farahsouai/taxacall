@@ -1,0 +1,28 @@
+.dashboards {
+    float: right;
+    top: 100px; /* ajuste selon ton layout */
+    right: 60px; /* espace depuis le bord droit */
+    display: flex;
+    flex-direction: column; /* pour empiler verticalement */
+    gap: 1.5rem;
+    z-index: 5; /* au-dessus si nécessaire */
+    justify-content: flex-end;
+    margin-left: 50%;
+    text-align: center;
+  }
+  
+  
+  .dashboard-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    width: 320px;
+    margin-left: 40%;
+    text-align: center;
+    
+  }
+  .dashboard-card svg {
+    display: block;
+    margin: 2 auto;
+  }

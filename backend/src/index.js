@@ -27,7 +27,7 @@ const appellisteRoutes = require('./routes/appellisteRoutes');
 const historiqueCoutModel = require('./model/initHistoriqueCoutDB');
 const journalappelsRoutes = require('./routes/journalappelsRoutes');
 const historiqueCoutRoutes = require('./routes/historiqueCoutRoutes');
-
+const statistiquesRoutes = require('./routes/statistiquesRoutes');
 
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
@@ -46,7 +46,7 @@ app.use('/api', historiqueCoutRoutes);
 app.use('/api/filiales', filialeRoutes);
 app.use('/api/appel', appelRoutes);
 app.use('/api', journalappelsRoutes);
-
+app.use('/api', statistiquesRoutes);
 
 app.get('/', (req, res) => {
   res.send(`
