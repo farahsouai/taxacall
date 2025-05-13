@@ -95,7 +95,7 @@ const HistoriqueCout = {
       `;
       connection.query(queryTotal, [numeroPoste, mois], (err, results) => {
         if (err) {
-          console.error(`❌ Erreur total pour ${numeroPoste} :`, err.message);
+         
           return;
         }
 

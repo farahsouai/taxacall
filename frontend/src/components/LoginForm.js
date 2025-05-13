@@ -22,6 +22,7 @@ const LoginForm = () => {
         setErreur(data.error || 'Erreur lors de la connexion');
         return;
       }
+      
 
       // Stocker les données utiles en local
       localStorage.setItem('userRole', data.utilisateur.role);

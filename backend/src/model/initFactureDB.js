@@ -3,8 +3,7 @@ const path = require('path');
 const xlsx = require('xlsx');
 const db = require('../db');
 
-const dossierCDR = path.join(__dirname, '../fichiers-cdr');
-const dossierExport = path.join(__dirname, '../data');
+const fichierFacture = path.join(__dirname, '../data/factures_generees_par_cdr.xlsx'); // adapte le nom si besoin
 
 const Facture = {
   createTable: () => {
@@ -18,7 +17,9 @@ const Facture = {
         annee INT,
         montant_total DECIMAL(10,2),
         format VARCHAR(20),
-        date_generation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        date_generation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        utilisateur_id INT,
+        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
       )
     `;
     db.query(sql, (err) => {
@@ -26,73 +27,67 @@ const Facture = {
       console.log("✅ Table 'factures' prête !");
     });
   },
-  searchByMoisEtPoste: (mois, numeroPoste, callback) => {
-    const sql = `
-      SELECT id, numeroPoste, nom, prenom, mois, annee, montant_total, format, date_generation
-      FROM factures
-      WHERE mois = ? AND numeroPoste = ?
-    `;
-    db.query(sql, [mois, numeroPoste], callback);
-  },
-  
 
   insertFacture: (facture, callback) => {
     const { numeroPoste, mois, annee, montant_total, format } = facture;
+    const getUserQuery = 'SELECT id, nom, prenom FROM utilisateurs WHERE numeroPoste = ?';
 
-    const getUserQuery = 'SELECT nom, prenom FROM utilisateurs WHERE numeroPoste = ?';
     db.query(getUserQuery, [numeroPoste], (err, result) => {
-      let nom = '-';
-      let prenom = '-';
+      let nom = '-', prenom = '-', utilisateur_id = null;
 
       if (!err && result.length > 0) {
         nom = result[0].nom || '-';
         prenom = result[0].prenom || '-';
+        utilisateur_id = result[0].id;
       }
 
       const insertQuery = `
-        INSERT INTO factures (numeroPoste, nom, prenom, mois, annee, montant_total, format)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO factures (numeroPoste, nom, prenom, mois, annee, montant_total, format, utilisateur_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `;
-      const values = [numeroPoste, nom, prenom, mois, annee, montant_total, format];
+      const values = [numeroPoste, nom, prenom, mois, annee, montant_total, format, utilisateur_id];
+
       db.query(insertQuery, values, callback);
     });
   },
 
   seedFactures: () => {
-    const fichiersCDR = fs.readdirSync(dossierCDR).filter(f => /\.xlsx$/i.test(f));
-    const fichiersExport = fs.readdirSync(dossierExport).filter(f => /^export.*\.xlsx$/i.test(f));
-    const fichiers = [...fichiersCDR.map(f => path.join(dossierCDR, f)), ...fichiersExport.map(f => path.join(dossierExport, f))];
+    if (!fs.existsSync(fichierFacture)) {
+      console.error("❌ Fichier Excel non trouvé :", fichierFacture);
+      return;
+    }
 
-    fichiers.forEach((filePath) => {
-      const workbook = xlsx.readFile(filePath);
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const rows = xlsx.utils.sheet_to_json(sheet, { defval: '' });
+    const workbook = xlsx.readFile(fichierFacture);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = xlsx.utils.sheet_to_json(sheet, { defval: '' });
 
-      rows.forEach((row) => {
-        const facture = {
-          numeroPoste: String(row.numeroPoste || row.NumeroPoste || row['numero poste'] || row.Poste || row.poste).trim(),
-          mois: parseInt(row.mois || row.Mois),
-          annee: parseInt(row.annee || row.Annee),
-          montant_total: parseFloat(row.montant_total || row.Montant || row.total || row.Total),
-          format: (row.format || row.Format || 'excel').toLowerCase()
-        };
+    console.log(`📄 Lecture fichier : ${path.basename(fichierFacture)} contient ${rows.length} lignes`);
 
-        if (!facture.numeroPoste || isNaN(facture.mois) || isNaN(facture.annee) || isNaN(facture.montant_total)) {
-          console.warn("⚠️ Ligne ignorée (champ manquant ou invalide) :", row);
-          return;
+    rows.forEach((row) => {
+      if (Object.values(row).every(v => v === '')) return;
+
+      const facture = {
+        numeroPoste: String(row.numeroPoste || row.Poste || row.poste || '').trim(),
+        mois: parseInt(row.mois || row.Mois),
+        annee: parseInt(row.annee || row.Annee),
+        montant_total: parseFloat(row.montant_total || row.Montant || row.total),
+        format: (row.format || 'excel').toLowerCase()
+      };
+
+      
+
+      if (!facture.numeroPoste || isNaN(facture.mois) || isNaN(facture.annee) || isNaN(facture.montant_total)) {
+        console.warn("⚠️ Ligne ignorée (champ manquant ou invalide) :", row);
+        return;
+      }
+
+      Facture.insertFacture(facture, (err) => {
+        if (err) {
+          console.error("❌ Erreur insertion facture :", err.message);
+        } else {
+         
         }
-
-        Facture.insertFacture(facture, (err) => {
-          if (err) {
-            console.error("❌ Erreur insertion facture :", err.message);
-          } else {
-            console.log(`✅ Facture insérée : ${facture.numeroPoste}`);
-          }
-        });
       });
-
-      console.log(`📁 Fichier "${path.basename(filePath)}" traité avec ${rows.length} lignes.`);
     });
   },
 
@@ -104,17 +99,11 @@ const Facture = {
       ORDER BY f.annee DESC, f.mois DESC
     `;
     db.query(sql, callback);
-  },
-
-  updateFacture: (id, data, callback) => {
-    const { mois, annee, montant_total, format } = data;
-    const sql = `
-      UPDATE factures
-      SET mois = ?, annee = ?, montant_total = ?, format = ?
-      WHERE id = ?
-    `;
-    db.query(sql, [mois, annee, montant_total, format, id], callback);
-  },
+  }
 };
+
+// Création et insertion au démarrage si fichier exécuté
+Facture.createTable();
+setTimeout(() => Facture.seedFactures(), 1000);
 
 module.exports = Facture;

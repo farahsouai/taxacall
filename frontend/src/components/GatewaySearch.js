@@ -9,13 +9,43 @@ function GatewayWithUsers() {
   const [selectedIP, setSelectedIP] = useState('');
   const [users, setUsers] = useState([]);
   const [gatewayDetails, setGatewayDetails] = useState(null);
+  const role = localStorage.getItem("userRole");
 
   useEffect(() => {
-    fetch('http://localhost:3005/api/gateways')
+    const poste = localStorage.getItem("numeroPoste");
+
+    const url = role === "ADMIN"
+      ? 'http://localhost:3005/api/gateways'
+      : `http://localhost:3005/api/gateways/par-poste/${poste}`;
+
+    fetch(url)
       .then(res => res.json())
-      .then(setGatewayList)
-      .catch(err => console.error("Erreur chargement gateways :", err));
-  }, []);
+      .then(data => setGatewayList(Array.isArray(data) ? data : [data]))
+      .catch(err => console.error("Erreur chargement gateways:", err));
+  }, [role]);
+
+  // Détection IP automatique pour les utilisateurs non ADMIN
+  useEffect(() => {
+    if (role !== 'ADMIN') {
+      fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => {
+          const detectedIP = data.ip;
+          setSelectedIP(detectedIP);
+          fetch(`http://localhost:3005/api/gateways/${detectedIP}`)
+            .then(res => res.json())
+            .then(data => {
+              setGatewayDetails({
+                description: data.description,
+                code: data.code,
+                groupe: data.groupe
+              });
+              setUsers(data.utilisateurs || []);
+            })
+            .catch(err => console.error("Erreur chargement IP auto:", err));
+        });
+    }
+  }, [role]);
 
   const handleIPChange = (e) => {
     setSelectedIP(e.target.value);
@@ -151,36 +181,38 @@ function GatewayWithUsers() {
             </tbody>
           </table>
 
-          <div style={{ marginTop: '20px' }}>
-            <button
-              onClick={exportToExcel}
-              style={{
-                marginRight: '10px',
-                padding: '8px 15px',
-                backgroundColor: '#0073A8',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
-              }}
-            >
-              Exporter Excel
-            </button>
+          {role === "ADMIN" && (
+            <div style={{ marginTop: '20px' }}>
+              <button
+                onClick={exportToExcel}
+                style={{
+                  marginRight: '10px',
+                  padding: '8px 15px',
+                  backgroundColor: '#0073A8',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer'
+                }}
+              >
+                Exporter Excel
+              </button>
 
-            <button
-              onClick={exportToPDF}
-              style={{
-                padding: '8px 15px',
-                backgroundColor: '#A58D7F',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
-              }}
-            >
-              Exporter PDF
-            </button>
-          </div>
+              <button
+                onClick={exportToPDF}
+                style={{
+                  padding: '8px 15px',
+                  backgroundColor: '#A58D7F',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer'
+                }}
+              >
+                Exporter PDF
+              </button>
+            </div>
+          )}
         </div>
       ) : gatewayDetails && (
         <p style={{ color: 'gray', marginTop: '20px' }}>

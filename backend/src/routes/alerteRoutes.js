@@ -29,4 +29,29 @@ router.post('/import-utilisateurs', (req, res) => {
   });
 });
 
+// Route : GET /api/utilisateurs
+router.get('/', (req, res) => {
+  db.query('SELECT numeroPoste FROM utilisateurs_poulina', (err, results) => {
+    if (err) {
+      console.error('❌ Erreur récupération utilisateurs_poulina :', err);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+    res.json(results);
+  });
+});
+
+// ➤ Route pour récupérer tous les numéros de poste présents dans les alertes
+router.get('/numeros-poste', (req, res) => {
+  const sql = 'SELECT DISTINCT numeroPoste FROM alertes ORDER BY numeroPoste';
+  const db = require('../db');
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Erreur récupération numéros :", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    res.json(results);
+  });
+});
+
 module.exports = router;

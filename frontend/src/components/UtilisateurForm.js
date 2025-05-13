@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./GestionUtilisateurs.css";
 
 const UtilisateurForm = () => {
-  const { id } = useParams(); // Si id existe => modification
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -17,31 +17,45 @@ const UtilisateurForm = () => {
   const [numerosDisponibles, setNumerosDisponibles] = useState([]);
 
   useEffect(() => {
-    // Si modification, charger l'utilisateur
     if (id) {
       fetch(`http://localhost:3005/utilisateurs/${id}`)
         .then((res) => res.json())
-        .then((data) => setForm({ ...data, motDePasse: "" }));
+        .then((data) => {
+          setForm({ ...data, motDePasse: "" });
+        });
     }
 
-    // Charger les numéros de poste disponibles
-    fetch("http://localhost:3005/utilisateurs/numeros-cdr")
+    fetch("http://localhost:3005/utilisateurs/numeros-poulina")
       .then((res) => res.json())
-      .then((data) => setNumerosDisponibles(data))
-      .catch((err) => console.error("Erreur chargement numéros CDR :", err));
+      .then((data) => {
+        setNumerosDisponibles(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => console.error("Erreur chargement numéros :", err));
   }, [id]);
 
-  // Remplir nom/prenom depuis utilisateurs_poulina
   useEffect(() => {
     if (!id && form.numeroPoste) {
       fetch(`http://localhost:3005/utilisateurs-poulina/${form.numeroPoste}`)
         .then((res) => res.json())
         .then((data) => {
-          if (data.nom && data.prenom) {
-            setForm((prev) => ({ ...prev, nom: data.nom, prenom: data.prenom }));
+          console.log("📦 Données récupérées pour poste :", form.numeroPoste, data);
+          if (data && typeof data.nom === "string" && typeof data.prenom === "string") {
+            const nomPropre = data.nom === form.numeroPoste ? "" : data.nom;
+            const prenomPropre = data.prenom === form.numeroPoste ? "" : data.prenom;
+
+            setForm((prev) => ({
+              ...prev,
+              nom: nomPropre,
+              prenom: prenomPropre,
+            }));
+          } else {
+            setForm((prev) => ({ ...prev, nom: "", prenom: "" }));
           }
         })
-        .catch((err) => console.log("Aucun utilisateur Poulina trouvé :", err));
+        .catch((err) => {
+          console.log("❌ Erreur ou utilisateur Poulina inexistant :", err);
+          setForm((prev) => ({ ...prev, nom: "", prenom: "" }));
+        });
     }
   }, [form.numeroPoste, id]);
 
@@ -62,12 +76,15 @@ const UtilisateurForm = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     })
-      .then(() => navigate("/gestion-utilisateurs"))
+      .then(() => {
+        alert(id ? "✅ Utilisateur modifié avec succès !" : "✅ Utilisateur ajouté avec succès !");
+        navigate("/home?vue=utilisateurs");
+      })
       .catch((err) => console.error("Erreur enregistrement :", err));
   };
 
   const handleRetour = () => {
-    navigate("/gestion-utilisateurs");
+    navigate("/home?vue=utilisateurs");
   };
 
   return (
@@ -75,10 +92,7 @@ const UtilisateurForm = () => {
       <div className="retour" onClick={handleRetour}>
         ← Retour à la gestion des utilisateurs
       </div>
-      <button className="fermer-button" onClick={() => navigate("/home")}>
-        ❌ Fermer
-      </button>
-
+     
       <h2>{id ? "✏️ Modifier Utilisateur" : "➕ Ajouter Utilisateur"}</h2>
 
       <form onSubmit={handleSubmit}>
@@ -97,7 +111,6 @@ const UtilisateurForm = () => {
           required
         />
 
-        {/* Numéro de poste */}
         {!id ? (
           <select
             name="numeroPoste"
@@ -106,11 +119,12 @@ const UtilisateurForm = () => {
             required
           >
             <option value="">-- Sélectionner un numéro de poste --</option>
-            {numerosDisponibles.map((num, index) => (
-              <option key={index} value={num}>
-                {num}
-              </option>
-            ))}
+            {Array.isArray(numerosDisponibles) &&
+              numerosDisponibles.map((num, index) => (
+                <option key={index} value={num}>
+                  {num}
+                </option>
+              ))}
           </select>
         ) : (
           <input
@@ -135,7 +149,6 @@ const UtilisateurForm = () => {
 
         <select name="role" value={form.role} onChange={handleChange}>
           <option value="UTILISATEUR">Utilisateur</option>
-          <option value="ADMIN">Admin</option>
         </select>
 
         <button type="submit">{id ? "Modifier" : "Ajouter"}</button>

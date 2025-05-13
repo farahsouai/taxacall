@@ -8,6 +8,21 @@ const xlsx = require('xlsx');
 
 const router = express.Router();
 
+// ✅ Récupérer les numéros de poste depuis la base utilisateurs_poulina
+router.get('/numeros-poulina', (req, res) => {
+  const sql = 'SELECT numeroPoste FROM utilisateurs_poulina WHERE numeroPoste IS NOT NULL AND numeroPoste != ""';
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Erreur SQL pour numeros poulina :", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+
+    const numeros = results.map(row => row.numeroPoste);
+    res.json(numeros);
+  });
+});
+
 // ✅ Liste des numeroPoste extraits des fichiers CDR
 router.get('/numeros-cdr', (req, res) => {
   try {
@@ -77,7 +92,7 @@ router.get('/', (req, res) => {
   });
 });
 
-// ✅ Récupérer un utilisateur par ID
+// ✅ Récupérer un utilisateur par ID (doit venir APRÈS les routes spécifiques)
 router.get('/:id', (req, res) => {
   const id = req.params.id;
   const sql = 'SELECT * FROM utilisateurs WHERE id = ?';

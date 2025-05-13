@@ -7,9 +7,8 @@ import AppelList from './components/AppelList';
 import HistoriqueCout from './components/HistoriqueCout';
 import GestionUtilisateurs from "./components/GestionUtilisateurs";
 import UtilisateurForm from "./components/UtilisateurForm";
-
-
-
+import ChatbotComponent from './components/ChatbotComponent';
+import ChatbotPopup from './components/ChatbotPopup';
 
 
 function App() {
@@ -52,7 +51,11 @@ function App() {
     <Route path="/utilisateur" element={<UtilisateurForm />} />
     <Route path="/utilisateur/:id" element={<UtilisateurForm />} />
     <Route path="/gestion-utilisateurs" element={<GestionUtilisateurs />} />
+      <Route path="/chatbot" element={<ChatbotComponent />} />
+       
         </Routes>
+        <ChatbotPopup />
+       
       </div>
     </Router>
   );

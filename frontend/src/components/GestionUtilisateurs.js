@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./GestionUtilisateurs.css";
 
-const GestionUtilisateurs = () => {
+const GestionUtilisateurs = ({ onAfficherUtilisateur, isAdmin }) => {
   const [utilisateurs, setUtilisateurs] = useState([]);
   const navigate = useNavigate();
 
@@ -24,14 +24,15 @@ const GestionUtilisateurs = () => {
   };
 
   return (
-    
     <div className="gestion-container">
-      <button className="fermer-button" onClick={() => navigate("/home")}>❌ Fermer</button>
+      
 
       <h2>👥 Gestion des Utilisateurs</h2>
-      <button className="ajouter-btn" onClick={() => navigate("/utilisateur")}>
-        ➕ Ajouter un utilisateur
-      </button>
+      {isAdmin && (
+        <button className="ajouter-btn" onClick={() => navigate("/utilisateur")}>
+          ➕ Ajouter un utilisateur
+        </button>
+      )}
 
       <table className="utilisateurs-table">
         <thead>
@@ -51,12 +52,22 @@ const GestionUtilisateurs = () => {
               <td>{u.numeroPoste}</td>
               <td>{u.role}</td>
               <td>
-                <button className="modifier-btn" onClick={() => navigate(`/utilisateur/${u.id}`)}>
-                  ✏️ Modifier
-                </button>
-                <button className="supprimer-btn" onClick={() => handleDelete(u.id)}>
-                  🗑️ Supprimer
-                </button>
+              {!isAdmin && onAfficherUtilisateur && (
+  <button className="afficher-btn" onClick={() => onAfficherUtilisateur(u)}>
+    👁️ Afficher
+  </button>
+)}
+
+                {isAdmin && (
+                  <>
+                    <button className="modifier-btn" onClick={() => navigate(`/utilisateur/${u.id}`)}>
+                      ✏️ Modifier
+                    </button>
+                    <button className="supprimer-btn" onClick={() => handleDelete(u.id)}>
+                      🗑️ Supprimer
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}

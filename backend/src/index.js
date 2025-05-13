@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
 const port = 3005;
@@ -26,8 +28,9 @@ const alerteRoutes = require('./routes/alerteRoutes');
 const appellisteRoutes = require('./routes/appellisteRoutes');
 const historiqueCoutModel = require('./model/initHistoriqueCoutDB');
 const journalappelsRoutes = require('./routes/journalappelsRoutes');
-const historiqueCoutRoutes = require('./routes/historiqueCoutRoutes');
+const historiquecoutRoutes = require('./routes/historiquecoutRoutes');
 const statistiquesRoutes = require('./routes/statistiquesRoutes');
+const chatbotOpenaiRoute = require('./routes/chatbotOpenaiRoute');
 
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
@@ -42,11 +45,13 @@ app.use('/api/utilisateurs-poulina', utilisateursPoulinaRoutes);
 app.use('/api/factures', factureRoutes);
 app.use('/api/alertes', alerteRoutes);
 app.use('/api/appelliste', appellisteRoutes);
-app.use('/api', historiqueCoutRoutes);
+app.use('/api/historique', historiquecoutRoutes);
 app.use('/api/filiales', filialeRoutes);
 app.use('/api/appel', appelRoutes);
 app.use('/api', journalappelsRoutes);
 app.use('/api', statistiquesRoutes);
+app.use('/api', chatbotOpenaiRoute);
+
 
 app.get('/', (req, res) => {
   res.send(`
@@ -95,9 +100,12 @@ setTimeout(() => {
 }, 2000);
 
 
+
 setTimeout(() => {
   historiqueCoutModel.insertFromCDRFiles();
 }, 1000);
+
+
 factureModel.getAllWithUser((err, result) => {
   if (err) {
     console.error("❌ Erreur lors du listing des factures :", err);

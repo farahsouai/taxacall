@@ -6,7 +6,7 @@ const db = require('../db');
 const dossierCDR = path.join(__dirname, '../fichiers-cdr');
 const dossierExport = path.join(__dirname, '../data');
 
-const Appel = {}; // 👈 Déclaration d'abord
+const Appel = {};
 
 Appel.createTable = () => {
   const sql = `
@@ -21,6 +21,7 @@ Appel.createTable = () => {
       prenom VARCHAR(100),
       filiale VARCHAR(100),
       type_appel VARCHAR(20),
+      direction_appel VARCHAR(20),
       mois INT,
       annee INT,
       filiale_id INT,
@@ -68,22 +69,32 @@ Appel.importCDRs = () => {
         return;
       }
 
-      const operateur = row.operateur || "Inconnu";
+  let operateur = row.operateur || row.Operateur || row['Opérateur'] || null;
+if (typeof operateur === 'string') {
+  // Nettoyage des virgules s'il y a plusieurs opérateurs
+  operateur = operateur.split(',')[0].trim();
+}
+
+
       const nom = row.nom || row.Nom || "-";
       const prenom = row.prenom || row.Prenom || row.Prénom || "-";
       const filiale = row.filiale || "-";
       const type_appel = row.type || "National";
+      const direction = (row.direction || row.direction_appel || row['sens'] || '').toLowerCase();
+     const direction_appel = direction.includes('entrant') ? 'entrant'
+                           : direction.includes('sortant') ? 'sortant'
+                           : 'entrant';'sortant'; // valeur par défaut
 
       const sql = `
         INSERT INTO appels 
-        (date_appel, numeroPoste, operateur, duree, cout, nom, prenom, filiale, type_appel, mois, annee)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (date_appel, numeroPoste, operateur, duree, cout, nom, prenom, filiale, type_appel, direction_appel, mois, annee)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       totalInsertions++;
       db.query(sql, [
         date_appel, numeroPoste.toString().trim(), operateur, duree,
-        cout, nom.trim(), prenom.trim(), filiale, type_appel,
+        cout, nom.trim(), prenom.trim(), filiale, type_appel, direction_appel,
         mois, annee
       ], (err) => {
         insertionsDone++;

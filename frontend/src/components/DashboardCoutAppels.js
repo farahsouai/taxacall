@@ -26,8 +26,8 @@ const DashboardCoutAppels = () => {
       align: 'center'
     },
     xaxis: {
-      categories: data.top.map((item, index) => 
-        `${item.nom || '---'} (${item.heure || '---'})`
+      categories: data.top.map((item, index) =>
+        `${item.nom || '---'}`
       ),
       labels: { rotate: -45 }
     },
@@ -47,11 +47,10 @@ const DashboardCoutAppels = () => {
   return (
     <div className="dashboard-card">
       <div style={{ marginBottom: '1rem' }}>
-        <label> </label>
-        <input 
-          type="date" 
-          value={selectedDate} 
-          onChange={e => setSelectedDate(e.target.value)} 
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={e => setSelectedDate(e.target.value)}
         />
       </div>
 
@@ -61,9 +60,7 @@ const DashboardCoutAppels = () => {
         <p>Aucune donnée disponible pour cette date.</p>
       )}
 
-<p>💰 Total : <strong>{Number(data.total).toFixed(2)} DT</strong></p>
-
-
+      <p>💰 Total : <strong>{Number(data.total).toFixed(2)} DT</strong></p>
     </div>
   );
 };

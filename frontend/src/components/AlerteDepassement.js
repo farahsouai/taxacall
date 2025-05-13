@@ -28,14 +28,14 @@ const AlerteDepassement = () => {
 
   const fetchUtilisateurs = async () => {
     try {
-      const res = await fetch('http://localhost:3005/api/utilisateurs');
+      const res = await fetch('http://localhost:3005/api/alertes/numeros-poste');
       const data = await res.json();
-      setUtilisateurs(data);
+      setUtilisateurs(data); // Chaque item contient un "numeroPoste"
     } catch (error) {
-      console.error('❌ Erreur chargement utilisateurs :', error);
+      console.error('❌ Erreur chargement numéros :', error);
     }
   };
-
+  
   const alertesFiltrees = searchPoste
     ? alertes.filter((a) =>
         a.numeroPoste.toLowerCase().includes(searchPoste.toLowerCase())
@@ -138,17 +138,18 @@ const AlerteDepassement = () => {
           }}
         >
           <option value="">-- Sélectionner un numéro de poste --</option>
-          {utilisateurs.map((u) => (
-            <option key={u.id} value={u.numeroPoste}>
-              {u.numeroPoste}
-            </option>
-          ))}
+         {alertes.map((u, idx) => (
+  <option key={`${u.numeroPoste}-${idx}`} value={u.numeroPoste}>
+    {u.numeroPoste}
+  </option>
+))}
+
         </select>
       </div>
 
       <div className="alerte-actions">
-        
         <button onClick={handleExportExcel}>📊 Exporter Excel</button>
+        <button onClick={handleExportPDF}>📄 Exporter PDF</button>
         <button onClick={imprimer}>🖨️ Imprimer</button>
       </div>
 

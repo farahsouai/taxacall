@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db'); // ton db.js reste inchangé
+const db = require('../db'); 
+
+
+
 
 // ➤ Route : /api/statistiques-appels
 router.get('/statistiques-appels', async (req, res) => {
@@ -58,5 +61,28 @@ router.get('/statistiques-cout-appels', async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+
+
+
+  router.get('/statistiques/historique-mensuel', async (req, res) => {
+    try {
+      const [rows] = await db.promise().query(`
+        SELECT 
+          MONTH(date_appel) AS mois,
+          YEAR(date_appel) AS annee,
+          SUM(cout) AS total
+        FROM appels
+        WHERE cout > 0
+        GROUP BY annee, mois
+        ORDER BY annee, mois
+      `);
+      res.json(rows);
+    } catch (err) {
+      console.error("❌ Erreur récupération historique mensuel :", err);
+      res.status(500).json({ error: "Erreur serveur" });
+    }
+  });
+  
 
 module.exports = router;
