@@ -7,6 +7,7 @@ const BudgetInfo = () => {
   const [consommation, setConsommation] = useState("");
   const [solde, setSolde] = useState("");
   const [listePostes, setListePostes] = useState([]);
+  const [montantAjout, setMontantAjout] = useState("");
   const role = localStorage.getItem('userRole');
 
   useEffect(() => {
@@ -49,17 +50,31 @@ const BudgetInfo = () => {
     });
   };
 
+  const ajouterBudget = () => {
+    if (!montantAjout || isNaN(parseFloat(montantAjout))) {
+      alert("Veuillez entrer un montant valide");
+      return;
+    }
+
+    fetch(`http://localhost:3005/api/budget/ajouter/${numeroPoste}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ montant: parseFloat(montantAjout) })
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "Montant ajouté !");
+        setMontantAjout("");
+        handleFetchData();
+      })
+      .catch(err => {
+        console.error("❌ Erreur ajout budget", err);
+        alert("Erreur lors de l'ajout du budget");
+      });
+  };
+
   return (
-    <div style={{
-      display: "flex",
-      gap: "20px", /* réduit l'espacement */
-      alignItems: "flex-end",
-    /* aligné à gauche */
-      marginTop: "30px",
-      flexWrap: "wrap",
-      paddingLeft: "20px" /* léger décalage gauche si souhaité */
-    }}>
-    
+    <div className="budget-section">
       <div style={boxStyle}>
         <label style={labelStyle}>🔢 Numéro de poste</label>
         <select
@@ -124,10 +139,30 @@ const BudgetInfo = () => {
           </div>
         )}
       </div>
+
+      {role === "ADMIN" && (
+        <>
+          <div style={boxStyle}>
+            <label style={labelStyle}>➕ Ajouter au budget</label>
+            <input
+              type="number"
+              placeholder="Montant"
+              value={montantAjout}
+              onChange={(e) => setMontantAjout(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
+          <div style={boxStyle}>
+            <label style={{ visibility: 'hidden' }}>Ajout</label>
+            <button onClick={ajouterBudget} style={buttonStyle}>💾 Ajouter</button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
+// Styles
 const inputStyle = {
   padding: "8px 12px",
   fontSize: "14px",

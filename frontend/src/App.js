@@ -23,6 +23,8 @@ function App() {
     <div style={{  margin: '0 auto', textAlign: 'center' }}>
       <nav>
         
+
+        
       </nav>
 
         <Routes>
@@ -35,9 +37,7 @@ function App() {
           
             {showLogin ? <LoginForm /> : <RegisterForm />}
           
-            <button className="btn-primary" onClick={toggleForm} style={{ marginTop: '20px' }}>
-              {showLogin ? "Créer un compte" : "Déjà inscrit ? Se connecter"}
-            </button>
+            
             
           </>
           

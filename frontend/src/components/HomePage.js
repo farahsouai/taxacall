@@ -35,6 +35,16 @@ const HomePage = () => {
   const numeroPoste = localStorage.getItem('numeroPoste');
   const [utilisateurAffiche, setUtilisateurAffiche] = useState(null);
 
+  // Redirection automatique si URL contient un hash
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === '#facturation') setVueActive("factures");
+    else if (hash === '#appels') setVueActive("appels");
+    else if (hash === '#utilisateurs') setVueActive("utilisateurs");
+    else if (hash === '#alertes') setVueActive("depassement");
+    else if (hash === '#budget') setVueActive("historique-mensuel");
+  }, []);
+
   useEffect(() => {
     if (!role) {
       navigate('/auth');
@@ -73,15 +83,9 @@ const HomePage = () => {
 
               {openStatJour && (
                 <div style={{ paddingLeft: '15px' }}>
-                  <button onClick={() => setVueActive("historique")}>
-                    📊 Historique de coût
-                  </button>
-                  <button onClick={() => setVueActive("depassement")}>
-                    📈 Alertes de dépassement
-                  </button>
-                  <button onClick={() => setVueActive("historique-mensuel")}>
-                    📆 Coût mensuel global
-                  </button>
+                  <button onClick={() => setVueActive("historique")}>📊 Historique de coût</button>
+                  <button onClick={() => setVueActive("depassement")}>📈 Alertes de dépassement</button>
+                  <button onClick={() => setVueActive("historique-mensuel")}>📆 Coût mensuel global</button>
                 </div>
               )}
 
@@ -98,11 +102,11 @@ const HomePage = () => {
             </div>
           )}
 
-          
-              <button onClick={() => setVueActive("utilisateurs")}>
-                <FiUsers style={{ marginRight: 6 }} /> Gérer les Utilisateurs
-              </button>
-              {role === "ADMIN" && (
+          <button onClick={() => setVueActive("utilisateurs")}>
+            <FiUsers style={{ marginRight: 6 }} /> Gérer les Utilisateurs
+          </button>
+
+          {role === "ADMIN" && (
             <>
               <button onClick={() => setVueActive("factures")}>
                 <FiFileText style={{ marginRight: 6 }} /> Facturation
@@ -155,22 +159,44 @@ const HomePage = () => {
             <FiXCircle style={{ marginRight: 6 }} /> Fermer
           </button>
 
-          {vueActive === "appels" && <AppelList />}
+          {vueActive === "appels" && (
+            <div id="appels">
+              <AppelList />
+            </div>
+          )}
+
+          {vueActive === "utilisateurs" && (
+            <div id="utilisateurs">
+              <GestionUtilisateurs
+                onAfficherUtilisateur={setUtilisateurAffiche}
+                isAdmin={role === "ADMIN"}
+              />
+            </div>
+          )}
+
+          {vueActive === "factures" && role === "ADMIN" && (
+            <div id="facturation">
+              <FactureList />
+            </div>
+          )}
+
+          {vueActive === "depassement" && (
+            <div id="alertes">
+              <AlerteDepassement />
+            </div>
+          )}
+
           {vueActive === "historique" && <HistoriqueCout />}
           {vueActive === "inter-filiales" && role === "ADMIN" && <AppelsInterFiliales />}
           {vueActive === "nationaux" && role === "ADMIN" && <AppelsNationauxInternationaux />}
-          {vueActive === "factures" && role === "ADMIN" && <FactureList />}
-          {vueActive === "utilisateurs" && (<GestionUtilisateurs
-onAfficherUtilisateur={setUtilisateurAffiche}
-    isAdmin={role === "ADMIN"}
-  />
-)}
-
           {vueActive === "gateway" && role === "ADMIN" && <GatewaySearch />}
           {vueActive === "prefixe" && role === "ADMIN" && <PrefixeSearch />}
           {vueActive === "utilisateurs-groupe" && role === "ADMIN" && <UtilisateursParGroupe />}
-          {vueActive === "depassement" && <AlerteDepassement />}
-          {vueActive === "historique-mensuel" && <DashboardHistoriqueMensuel />}
+          {vueActive === "historique-mensuel" && (
+            <div id="budget">
+              <DashboardHistoriqueMensuel />
+            </div>
+          )}
         </div>
       )}
 

@@ -1,15 +1,27 @@
 // src/components/ChatbotPopup.js
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom'; // ✅ Étape 1
 import './ChatbotPopup.css';
 import ChatbotComponent from './ChatbotComponent';
 
 const ChatbotPopup = () => {
+  const location = useLocation(); // ✅ Étape 2
   const [isOpen, setIsOpen] = useState(() => localStorage.getItem('chatbotOpen') === 'true');
   const [hasUnread, setHasUnread] = useState(false);
 
   useEffect(() => {
     const unread = localStorage.getItem('chatbotUnread') === 'true';
     setHasUnread(unread);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      const alreadyWelcomed = localStorage.getItem('chatbotWelcomed') === 'true';
+      if (!alreadyWelcomed) {
+        window.dispatchEvent(new CustomEvent('botWelcome'));
+        localStorage.setItem('chatbotWelcomed', 'true');
+      }
+    }, 300);
   }, []);
 
   const openChat = () => {
@@ -22,15 +34,13 @@ const ChatbotPopup = () => {
   const closeChat = () => {
     localStorage.setItem('chatbotOpen', 'false');
     setIsOpen(false);
-    localStorage.removeItem('chatbotWelcomed'); // optionnel
+    localStorage.removeItem('chatbotWelcomed');
   };
-setTimeout(() => {
-  const alreadyWelcomed = localStorage.getItem('chatbotWelcomed') === 'true';
-  if (!alreadyWelcomed) {
-    window.dispatchEvent(new CustomEvent('botWelcome')); // on déclenche un événement custom
-    localStorage.setItem('chatbotWelcomed', 'true');
+
+  // ✅ Étape 3 – Ne pas afficher le chatbot sur /auth
+  if (location.pathname === '/auth') {
+    return null;
   }
-}, 300);
 
   return (
     <>

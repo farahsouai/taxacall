@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./GestionUtilisateurs.css";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const UtilisateurForm = () => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ const UtilisateurForm = () => {
   });
 
   const [numerosDisponibles, setNumerosDisponibles] = useState([]);
+  const [motDePasseVisible, setMotDePasseVisible] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -92,7 +94,7 @@ const UtilisateurForm = () => {
       <div className="retour" onClick={handleRetour}>
         ← Retour à la gestion des utilisateurs
       </div>
-     
+
       <h2>{id ? "✏️ Modifier Utilisateur" : "➕ Ajouter Utilisateur"}</h2>
 
       <form onSubmit={handleSubmit}>
@@ -137,14 +139,28 @@ const UtilisateurForm = () => {
         )}
 
         {!id && (
-          <input
-            type="password"
-            name="motDePasse"
-            value={form.motDePasse}
-            onChange={handleChange}
-            placeholder="Mot de passe"
-            required
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              type={motDePasseVisible ? 'text' : 'password'}
+              name="motDePasse"
+              value={form.motDePasse}
+              onChange={handleChange}
+              placeholder="Mot de passe"
+              required
+            />
+            <span
+              onClick={() => setMotDePasseVisible(!motDePasseVisible)}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                right: '10px',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer'
+              }}
+            >
+              {motDePasseVisible ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
         )}
 
         <select name="role" value={form.role} onChange={handleChange}>

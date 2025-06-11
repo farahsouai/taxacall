@@ -55,3 +55,12 @@
     max-width: 250px;
   }
 }
+.budget-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  justify-content: flex-start;
+  margin-top: 30px;
+  padding-left: 20px;
+}

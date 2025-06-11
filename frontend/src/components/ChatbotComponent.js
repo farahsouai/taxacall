@@ -1,121 +1,111 @@
-// src/components/ChatbotComponent.js
-import React, { useEffect, useState, useRef } from 'react';
-import './ChatbotComponent.css';
+import React, { useState } from 'react';
+
+
+const formatReponse = (text) => {
+  return text
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, `<a href='$2' target='_blank' rel='noopener noreferrer'>$1</a>`)
+    .replace(/\n/g, "<br>");
+};
+
 
 const ChatbotComponent = () => {
-  const [conversation, setConversation] = useState([]);
-  const [userInput, setUserInput] = useState('');
-  const chatEndRef = useRef(null);
- 
-  const notificationSound = new Audio('/sounds/notification.mp3');
+  const [question, setQuestion] = useState('');
+  const [response, setResponse] = useState('');
+  const [historique, setHistorique] = useState([]);
 
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+  
+
+  const envoyerQuestion = async () => {
+    if (!question.trim()) return;
+
+    const res = await fetch('http://localhost:3005/api/chatbot/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+    });
+
+    const data = await res.json();
+    const nouvelleEntree = { question, reponse: data.answer };
+    setHistorique((prev) => [...prev, nouvelleEntree]);
+    setResponse(data.answer);
+    setQuestion('');
   };
-
-  const addMessage = (msg) => {
-    setConversation(prev => [...prev, msg]);
-    if (msg.from === 'bot') {
-      if (localStorage.getItem('chatbotOpen') !== 'true') {
-        localStorage.setItem('chatbotUnread', 'true');
-      }
-      notificationSound.play().catch(() => {});
-    }
-    scrollToBottom();
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!userInput.trim()) return;
-
-    const question = userInput.trim();
-    addMessage({ from: 'user', text: question });
-
-    const typingMessage = { from: 'bot', typing: true };
-    setConversation(prev => [...prev, typingMessage]);
-    scrollToBottom();
-
-    try {
-      const res = await fetch('http://localhost:3005/api/chatbot/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question })
-      });
-      const data = await res.json();
-
-      setConversation(prev => {
-        const updated = [...prev];
-        updated.pop(); // remove typing
-        return [...updated, { from: 'bot', text: data.answer }];
-      });
-    } catch (error) {
-      setConversation(prev => {
-        const updated = [...prev];
-        updated.pop();
-        return [...updated, { from: 'bot', text: "❌ Une erreur est survenue avec l'IA. Réessayez plus tard." }];
-      });
-    }
-
-    setUserInput('');
-  };
-
-useEffect(() => {
-  const handleWelcome = () => {
-    setConversation(prev => [
-      ...prev,
-      { from: 'bot', text: "Bonjour 👋 ! Je suis là pour vous aider." }
-    ]);
-    scrollToBottom();
-  };
-
-  window.addEventListener('botWelcome', handleWelcome);
-
-  return () => {
-    window.removeEventListener('botWelcome', handleWelcome);
-  };
-}, []);
-
 
   return (
-    <div className="chatbot-wrapper">
-      <div className="chatbot-window">
-        <div className="chatbot-header">🤖 Assistant TaxaCall</div>
-        <div className="chatbot-body">
-          <div className="chat-history">
-            {conversation.map((msg, index) =>
-              msg.typing ? (
-                <div key={index} className="chat-message bot">
-                  <div className="typing-indicator">
-                    <span className="typing-dot"></span>
-                    <span className="typing-dot"></span>
-                    <span className="typing-dot"></span>
-                  </div>
-                </div>
-              ) : (
-                <div key={index} className={`chat-message ${msg.from}`}>
-                  {msg.from === 'user' ? '👤' : '🤖'} {msg.text}
-                </div>
-              )
-            )}
-            <div ref={chatEndRef} />
-          </div>
+    <div style={styles.container}>
+      <h2>🤖 Assistant TaxaCall</h2>
 
-          <form className="chat-input-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              placeholder="Posez votre question ici..."
-              className="chat-input"
-            />
-            <button type="submit" className="chat-submit">Envoyer</button>
-          </form>
-        </div>
+      <div style={styles.chatBox}>
+        {historique.map((entry, index) => (
+          <div key={index} style={styles.entry}>
+            <p><strong>🧑‍💼 Vous :</strong> {entry.question}</p>
+            <p>
+  <strong>🤖 Bot :</strong>{' '}
+  <span dangerouslySetInnerHTML={{ __html: formatReponse(entry.reponse) }} />
+</p>
+
+          </div>
+        ))}
+      </div>
+
+      <div style={styles.form}>
+        <input
+          type="text"
+          placeholder="Posez votre question ici..."
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          style={styles.input}
+        />
+        <button onClick={envoyerQuestion} style={styles.button}>Envoyer</button>
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    width: '100%',
+    maxWidth: '700px',
+    margin: 'auto',
+    padding: '20px',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '12px',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+  },
+  chatBox: {
+    height: '300px',
+    overflowY: 'auto',
+    backgroundColor: '#fff',
+    padding: '15px',
+    marginBottom: '20px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+  },
+  entry: {
+    marginBottom: '15px',
+    borderBottom: '1px solid #eaeaea',
+    paddingBottom: '10px'
+  },
+  form: {
+    display: 'flex',
+    gap: '10px'
+  },
+  input: {
+    flex: 1,
+    padding: '10px',
+    borderRadius: '8px',
+    border: '1px solid #ccc',
+    fontSize: '16px'
+  },
+  button: {
+    backgroundColor: '#0073A8',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '10px 16px',
+    cursor: 'pointer',
+    fontWeight: 'bold'
+  }
 };
 
 export default ChatbotComponent;
